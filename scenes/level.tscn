@@ -1,0 +1,24 @@
+[gd_scene format=3 uid="uid://dw3xdl5vw0xq5"]
+
+[ext_resource type="Texture2D" uid="uid://i03p2vuatie4" path="res://textures/map.png" id="1_2q6dc"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_rd3vj"]
+size = Vector3(200, 1, 200)
+
+[sub_resource type="BoxMesh" id="BoxMesh_2q6dc"]
+size = Vector3(200, 1, 200)
+
+[node name="Level" type="Node3D" unique_id=1098469341]
+
+[node name="StaticBody3D" type="StaticBody3D" parent="." unique_id=1353870888]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, 0)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="StaticBody3D" unique_id=1538781316]
+shape = SubResource("BoxShape3D_rd3vj")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="StaticBody3D" unique_id=1879793318]
+mesh = SubResource("BoxMesh_2q6dc")
+
+[node name="Sprite3D" type="Sprite3D" parent="StaticBody3D/MeshInstance3D" unique_id=395161961]
+transform = Transform3D(31, 0, 0, 0, -1.3550531e-06, 31, 0, -31, -1.3550531e-06, 0, 1, 0)
+texture = ExtResource("1_2q6dc")

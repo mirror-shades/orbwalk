@@ -1,0 +1,20 @@
+[gd_scene load_steps=3 format=3 uid="uid://b4v3ih0bvbi40"]
+
+[ext_resource type="ArrayMesh" uid="uid://cbw8yu1npbhwh" path="res://textures/tree/Christmas Tree.obj" id="1_avsvi"]
+
+[sub_resource type="CylinderShape3D" id="CylinderShape3D_avsvi"]
+height = 4.0
+radius = 1.5
+
+[node name="Node3D" type="Node3D"]
+
+[node name="StaticBody3D" type="StaticBody3D" parent="."]
+
+[node name="ChristmasTree" type="MeshInstance3D" parent="StaticBody3D"]
+transform = Transform3D(0.15, 0, 0, 0, 0.15, 0, 0, 0, 0.15, 0, 0, 0)
+mesh = ExtResource("1_avsvi")
+skeleton = NodePath("../..")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="StaticBody3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2, 0)
+shape = SubResource("CylinderShape3D_avsvi")

@@ -1,0 +1,8 @@
+[gd_scene load_steps=2 format=3 uid="uid://ctmksvlmdwrjh"]
+
+[ext_resource type="PackedScene" uid="uid://ct5gjwbc0p274" path="res://textures/weapon/knife.blend" id="1_jb8b4"]
+
+[node name="Weapon" type="Node3D"]
+
+[node name="knife" parent="." instance=ExtResource("1_jb8b4")]
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 0, 0)

@@ -1,0 +1,5 @@
+[gd_scene load_steps=2 format=3 uid="uid://dh31f1afmvihg"]
+
+[ext_resource type="PackedScene" uid="uid://dimbiircwg7ij" path="res://charizar.blend" id="1_i2oce"]
+
+[node name="charizar" instance=ExtResource("1_i2oce")]
