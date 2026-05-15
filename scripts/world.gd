@@ -36,7 +36,7 @@ func _create_navigation() -> void:
 	nav_mesh.edge_max_length = nav_edge_max_length
 
 	var geo := NavigationMeshSourceGeometryData3D.new()
-	NavigationServer3D.parse_source_geometry_data(nav_mesh, geo, self)
+	_add_obstacle_geometry(geo, self)
 	NavigationServer3D.bake_from_source_geometry_data(nav_mesh, geo)
 
 	var count := nav_mesh.get_polygon_count()
@@ -64,3 +64,28 @@ func _create_navigation() -> void:
 		region.navigation_mesh = nav_mesh
 
 	print("Nav region map RID: ", region.get_navigation_map())
+
+func _add_obstacle_geometry(geo: NavigationMeshSourceGeometryData3D, node: Node) -> void:
+	var counts := _collect_geometry(geo, node)
+	print("Collected ", counts.x, " meshes, ", counts.y, " collision shapes for navmesh baking")
+
+func _collect_geometry(geo: NavigationMeshSourceGeometryData3D, node: Node) -> Vector2:
+	var mesh_count := 0
+	var shape_count := 0
+	for child in node.get_children():
+		if child is MeshInstance3D and child.mesh:
+			geo.add_mesh(child.mesh, child.global_transform)
+			mesh_count += 1
+		if child is CollisionShape3D and child.shape:
+			var body := child.get_parent()
+			if body is CollisionObject3D:
+				var flat_transform: Transform3D = body.global_transform
+				flat_transform.origin.y = 0.0
+				var mesh: ArrayMesh = child.shape.get_debug_mesh()
+				if mesh:
+					geo.add_mesh(mesh, flat_transform)
+				shape_count += 1
+		var child_counts := _collect_geometry(geo, child)
+		mesh_count += child_counts.x
+		shape_count += child_counts.y
+	return Vector2(mesh_count, shape_count)
