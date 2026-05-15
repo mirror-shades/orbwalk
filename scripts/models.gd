@@ -1,168 +1,134 @@
 extends Node3D
 
-enum State {INIT, IDLE, RUN, ATTACK}
-
-var current_state: State = State.INIT
-@onready var idle_model = $idle_model
-@onready var run_model = $run_model
-@onready var attack_model = $attack_model
-@onready var movement_root: Node3D = get_parent() as Node3D
-@onready var movement_body: CharacterBody3D = get_parent() as CharacterBody3D
-@onready var navigation_agent: NavigationAgent3D = movement_root.get_node_or_null("NavigationAgent3D") as NavigationAgent3D
-@export var move_speed: float = 6
+@export var move_speed: float = 6.0
 @export var rotation_speed: float = 10.0
 @export var click_ray_length: float = 1000.0
-@export var stop_distance: float = 0.15
+@export var stop_distance: float = 0.5
 
-var target_position: Vector3
-var has_target: bool = false
+@onready var body: CharacterBody3D = get_parent() as CharacterBody3D
+@onready var nav: NavigationAgent3D = body.get_node("NavigationAgent3D") as NavigationAgent3D
+@onready var idle_model: Node3D = $idle_model
+@onready var run_model: Node3D = $run_model
 
-var _click_indicator: MeshInstance3D
+var _target: Vector3
+var _moving: bool = false
+var _right_held: bool = false
+var _indicator: MeshInstance3D
 
-func _ready():
-	if navigation_agent:
-		navigation_agent.path_desired_distance = stop_distance
-		navigation_agent.target_desired_distance = stop_distance
-		navigation_agent.max_speed = move_speed
+func _ready() -> void:
+	if nav:
+		nav.path_desired_distance = 0.3
+		nav.target_desired_distance = stop_distance
+		nav.max_speed = move_speed
 		await get_tree().process_frame
-		var map_rid := navigation_agent.get_navigation_map()
-		print("NavAgent map RID: ", map_rid, " | regions on map: ", NavigationServer3D.map_get_regions(map_rid).size())
+		print("NavAgent map RID: ", nav.get_navigation_map())
 
 	run_model.hide()
-	attack_model.hide()
-	change_state(State.IDLE)
-
-func _ensure_click_indicator() -> MeshInstance3D:
-	if _click_indicator:
-		return _click_indicator
-
-	var disc := CylinderMesh.new()
-	disc.top_radius = 0.35
-	disc.bottom_radius = 0.35
-	disc.height = 0.02
-
-	var mat := StandardMaterial3D.new()
-	mat.albedo_color = Color(0.2, 0.9, 0.2, 0.7)
-	mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
-	mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-
-	_click_indicator = MeshInstance3D.new()
-	_click_indicator.name = "ClickIndicator"
-	_click_indicator.mesh = disc
-	_click_indicator.material_override = mat
-	_click_indicator.visible = false
-
-	get_tree().current_scene.add_child(_click_indicator)
-	return _click_indicator
-
-func _show_click_at(pos: Vector3) -> void:
-	var indicator := _ensure_click_indicator()
-	indicator.global_position = Vector3(pos.x, 0.04, pos.z)
-	indicator.scale = Vector3.ZERO
-	indicator.visible = true
-
-	var tw := create_tween()
-	tw.tween_property(indicator, "scale", Vector3.ONE, 0.1).set_ease(Tween.EASE_OUT)
-	tw.tween_property(indicator, "scale", Vector3.ZERO, 0.2).set_ease(Tween.EASE_IN)
-	tw.tween_callback(func(): indicator.visible = false)
+	$attack_model.hide()
 
 func _unhandled_input(event: InputEvent) -> void:
-	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_RIGHT and event.pressed:
-		var camera := get_viewport().get_camera_3d()
-		if camera == null:
-			return
+	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_RIGHT:
+		if event.pressed:
+			_right_held = true
+			_set_target(event.position)
+		else:
+			_right_held = false
 
-		var from := camera.project_ray_origin(event.position)
-		var to := from + camera.project_ray_normal(event.position) * click_ray_length
-		var query := PhysicsRayQueryParameters3D.create(from, to)
-		query.collide_with_areas = false
-		var hit := get_world_3d().direct_space_state.intersect_ray(query)
-		if hit.has("position"):
-			target_position = hit["position"]
-			if navigation_agent:
-				navigation_agent.target_position = target_position
-			has_target = true
-			_show_click_at(target_position)
+func _physics_process(delta: float) -> void:
+	if _right_held:
+		_set_target(get_viewport().get_mouse_position())
 
-func _physics_process(delta):
-	if not has_target:
-		stop_movement()
-		if current_state == State.RUN:
-			change_state(State.IDLE)
+	if not _moving:
+		body.velocity = Vector3.ZERO
+		if run_model.visible:
+			run_model.hide()
+			idle_model.show()
+			_play_anim(idle_model)
 		return
 
-	var to_target := target_position - movement_root.global_position
+	var to_target: Vector3 = _target - body.global_position
 	to_target.y = 0.0
-	var distance := to_target.length()
-	if distance <= stop_distance:
-		has_target = false
-		if current_state == State.RUN:
-			change_state(State.IDLE)
+	if to_target.length() <= stop_distance:
+		_moving = false
+		body.velocity = Vector3.ZERO
+		if run_model.visible:
+			run_model.hide()
+			idle_model.show()
+			_play_anim(idle_model)
 		return
 
-	if current_state == State.IDLE:
-		change_state(State.RUN)
+	var next_pos: Vector3 = _target
+	if nav and not nav.is_navigation_finished():
+		next_pos = nav.get_next_path_position()
 
-	var move_dir := get_move_direction()
-	if move_dir == Vector3.ZERO:
-		stop_movement()
+	var dir: Vector3 = next_pos - body.global_position
+	dir.y = 0.0
+
+	if dir.length() < 0.01:
+		dir = _target - body.global_position
+		dir.y = 0.0
+
+	if dir.length() < 0.01:
 		return
 
-	handle_movement(move_dir)
-	handle_rotation(delta, move_dir)
+	dir = dir.normalized()
 
-func change_state(new_state: State) -> void:
-	if new_state == current_state:
+	if not run_model.visible:
+		idle_model.hide()
+		run_model.show()
+		_play_anim(run_model)
+
+	body.velocity = dir * move_speed
+	body.move_and_slide()
+
+	var local_dir := body.global_transform.basis.inverse() * dir
+	rotation.y = lerp_angle(rotation.y, atan2(local_dir.x, local_dir.z), rotation_speed * delta)
+
+func _set_target(screen_pos: Vector2) -> void:
+	var camera := get_viewport().get_camera_3d()
+	if not camera:
 		return
-		
-	# Hide current model
-	match current_state:
-		State.IDLE: idle_model.hide()
-		State.RUN: run_model.hide()
-	
-	# Show and animate new model
-	current_state = new_state
-	var model = idle_model if new_state == State.IDLE else run_model
-	model.show()
-	var anim_player = model.get_node("AnimationPlayer")
-	anim_player.stop()
-	anim_player.get_animation("Take 001").loop_mode = Animation.LOOP_LINEAR
-	anim_player.play("Take 001")
 
-func get_move_direction() -> Vector3:
-	var next_position := target_position
-	if navigation_agent and not navigation_agent.is_navigation_finished():
-		next_position = navigation_agent.get_next_path_position()
-		if Engine.get_process_frames() % 120 == 0:
-			print("Following nav path — next waypoint: ", next_position)
+	var from := camera.project_ray_origin(screen_pos)
+	var to := from + camera.project_ray_normal(screen_pos) * click_ray_length
+	var query := PhysicsRayQueryParameters3D.create(from, to)
+	var hit := get_world_3d().direct_space_state.intersect_ray(query)
 
-	var move_dir := next_position - movement_root.global_position
-	move_dir.y = 0.0
-	if move_dir.length() <= 0.001:
-		move_dir = target_position - movement_root.global_position
-		move_dir.y = 0.0
+	if hit.has("position"):
+		_target = hit["position"]
+		if nav:
+			nav.target_position = _target
+		_moving = true
+		_show_indicator(_target)
 
-	if move_dir.length() <= 0.001:
-		return Vector3.ZERO
+func _play_anim(model: Node3D) -> void:
+	var anim := model.get_node("AnimationPlayer") as AnimationPlayer
+	if anim and anim.has_animation("Take 001"):
+		anim.stop()
+		anim.get_animation("Take 001").loop_mode = Animation.LOOP_LINEAR
+		anim.play("Take 001")
 
-	return move_dir.normalized()
+func _show_indicator(pos: Vector3) -> void:
+	if not _indicator:
+		var disc := CylinderMesh.new()
+		disc.top_radius = 0.35
+		disc.bottom_radius = 0.35
+		disc.height = 0.02
+		var mat := StandardMaterial3D.new()
+		mat.albedo_color = Color(0.2, 0.9, 0.2, 0.7)
+		mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+		mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+		_indicator = MeshInstance3D.new()
+		_indicator.name = "ClickIndicator"
+		_indicator.mesh = disc
+		_indicator.material_override = mat
+		_indicator.visible = false
+		get_tree().current_scene.add_child(_indicator)
 
-func handle_movement(move_dir: Vector3) -> void:
-	if movement_body:
-		movement_body.velocity = move_dir * move_speed
-		movement_body.move_and_slide()
-	else:
-		movement_root.global_position += move_dir * move_speed * get_physics_process_delta_time()
-
-func stop_movement() -> void:
-	if movement_body:
-		movement_body.velocity = Vector3.ZERO
-
-func handle_rotation(delta: float, move_dir: Vector3) -> void:
-	# Rotate to face movement direction
-	var local_move_dir := movement_root.global_transform.basis.inverse() * move_dir
-	var target_rotation := atan2(local_move_dir.x, local_move_dir.z)
-	rotation.y = lerp_angle(rotation.y, target_rotation, rotation_speed * delta)
-
-func is_moving() -> bool:
-	return has_target
+	_indicator.global_position = Vector3(pos.x, 0.05, pos.z)
+	_indicator.scale = Vector3.ZERO
+	_indicator.visible = true
+	var tw := create_tween()
+	tw.tween_property(_indicator, "scale", Vector3.ONE, 0.1).set_ease(Tween.EASE_OUT)
+	tw.tween_property(_indicator, "scale", Vector3.ZERO, 0.2).set_ease(Tween.EASE_IN)
+	tw.tween_callback(func(): _indicator.visible = false)

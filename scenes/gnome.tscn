@@ -1,14 +1,15 @@
-[gd_scene load_steps=7 format=3 uid="uid://d0w6p4lw12hb"]
+[gd_scene load_steps=8 format=3 uid="uid://d0w6p4lw12hb"]
 
 [ext_resource type="PackedScene" uid="uid://nv7gvcn1jvpm" path="res://gnome/forest_guard@idle.FBX" id="1_1sj24"]
 [ext_resource type="Script" path="res://scripts/camera_3d.gd" id="1_ixqay"]
 [ext_resource type="PackedScene" uid="uid://dev8g1uncclk2" path="res://gnome/forest_guard@run.FBX" id="2_j52t0"]
-[ext_resource type="Script" path="res://scripts/models.gd" id="2_k352v"]
+[ext_resource type="Script" path="res://scripts/mover.gd" id="2_k352v"]
 [ext_resource type="PackedScene" uid="uid://ctrdi53dqtnx4" path="res://gnome/forest_guard@attack(2).FBX" id="4_t3sq0"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_rhj5t"]
 
 [node name="Gnome" type="CharacterBody3D"]
+script = ExtResource("2_k352v")
 
 [node name="Camera3D" type="Camera3D" parent="."]
 transform = Transform3D(0.022911, 0.870065, -0.492404, -0.0868241, 0.492404, 0.866025, 0.99596, 0.022911, 0.0868241, -6.01005, 9.44962, -0.00565052)
@@ -23,7 +24,6 @@ shape = SubResource("CapsuleShape3D_rhj5t")
 [node name="NavigationAgent3D" type="NavigationAgent3D" parent="."]
 
 [node name="Models" type="Node3D" parent="."]
-script = ExtResource("2_k352v")
 
 [node name="idle_model" parent="Models" instance=ExtResource("1_1sj24")]
 
