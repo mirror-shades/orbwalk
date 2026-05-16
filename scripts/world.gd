@@ -3,12 +3,13 @@ extends Node3D
 @onready var charizard = $Charizard
 @onready var gnome = $Gnome
 
-@export var nav_agent_radius: float = 0.5
+@export var nav_agent_radius: float = 0.3
 @export var nav_agent_height: float = 2.0
-@export var nav_agent_max_climb: float = 0.3
+@export var nav_agent_max_climb: float = 0.1
 @export var nav_agent_max_slope: float = 45.0
-@export var nav_cell_size: float = 0.3
+@export var nav_cell_size: float = 0.1
 @export var nav_edge_max_length: float = 12.0
+@export var nav_obstacle_padding: float = 0.35
 
 func _ready() -> void:
 	if not charizard:
@@ -74,18 +75,58 @@ func _collect_geometry(geo: NavigationMeshSourceGeometryData3D, node: Node) -> V
 	var shape_count := 0
 	for child in node.get_children():
 		if child is MeshInstance3D and child.mesh:
-			geo.add_mesh(child.mesh, child.global_transform)
-			mesh_count += 1
+			var aabb: AABB = child.mesh.get_aabb()
+			if aabb.size.x > 50.0 and aabb.size.z > 50.0:
+				geo.add_mesh(child.mesh, child.global_transform)
+				mesh_count += 1
 		if child is CollisionShape3D and child.shape:
 			var body := child.get_parent()
 			if body is CollisionObject3D:
-				var flat_transform: Transform3D = body.global_transform
-				flat_transform.origin.y = 0.0
-				var mesh: ArrayMesh = child.shape.get_debug_mesh()
-				if mesh:
-					geo.add_mesh(mesh, flat_transform)
-				shape_count += 1
+				var shape: Shape3D = child.shape
+				var is_large_ground := false
+				if shape is BoxShape3D:
+					var size: Vector3 = shape.size
+					if size.x > 10.0 and size.z > 10.0:
+						is_large_ground = true
+				if not is_large_ground:
+					_add_projected_obstruction(geo, child)
+					shape_count += 1
 		var child_counts := _collect_geometry(geo, child)
 		mesh_count += child_counts.x
 		shape_count += child_counts.y
 	return Vector2(mesh_count, shape_count)
+
+func _add_projected_obstruction(geo: NavigationMeshSourceGeometryData3D, cs: CollisionShape3D) -> void:
+	var shape: Shape3D = cs.shape
+	var gp := cs.global_position
+	var gb := cs.global_transform.basis
+	var vertices := PackedVector3Array()
+
+	if shape is BoxShape3D:
+		var x_axis := gb * Vector3.RIGHT
+		var z_axis := gb * Vector3.BACK
+		var x_scale := x_axis.length()
+		var z_scale := z_axis.length()
+		var hx: float = shape.size.x / 2.0
+		var hz: float = shape.size.z / 2.0
+		if x_scale > 0.0:
+			hx += nav_obstacle_padding / x_scale
+		if z_scale > 0.0:
+			hz += nav_obstacle_padding / z_scale
+		for corner in [Vector2(-hx, -hz), Vector2(hx, -hz), Vector2(hx, hz), Vector2(-hx, hz)]:
+			var r := gb * Vector3(corner.x, 0, corner.y)
+			vertices.append(Vector3(r.x + gp.x, 0, r.z + gp.z))
+	elif shape is CylinderShape3D:
+		for i in 16:
+			var angle := i * 2.0 * PI / 16.0
+			var v := Vector2(cos(angle) * shape.radius, sin(angle) * shape.radius)
+			var r := gb * Vector3(v.x, 0, v.y)
+			var padding_dir := Vector3(r.x, 0, r.z)
+			if padding_dir.length() > 0.0:
+				padding_dir = padding_dir.normalized() * nav_obstacle_padding
+				r.x += padding_dir.x
+				r.z += padding_dir.z
+			vertices.append(Vector3(r.x + gp.x, 0, r.z + gp.z))
+
+	if vertices.size() > 2:
+		geo.add_projected_obstruction(vertices, 0.0, nav_agent_height, true)

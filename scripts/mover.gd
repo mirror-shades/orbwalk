@@ -51,24 +51,26 @@ func _physics_process(delta: float) -> void:
 		return
 
 	var next_pos: Vector3 = _target
-	if nav and not nav.is_navigation_finished():
+	if nav:
+		if nav.is_navigation_finished():
+			_stop_moving()
+			return
 		next_pos = nav.get_next_path_position()
 
 	var dir: Vector3 = next_pos - global_position
 	dir.y = 0.0
 
 	if dir.length() < 0.01:
-		dir = _target - global_position
-		dir.y = 0.0
+		if not nav:
+			dir = _target - global_position
+			dir.y = 0.0
+		else:
+			velocity = Vector3.ZERO
+			_update_path_line()
+			return
 
-	if dir.length() <= stop_distance:
-		_moving = false
-		velocity = Vector3.ZERO
-		if run_model.visible:
-			run_model.hide()
-			idle_model.show()
-			_start_anim(idle_model)
-		_update_path_line()
+	if not nav and dir.length() <= stop_distance:
+		_stop_moving()
 		return
 
 	dir = dir.normalized()
@@ -153,3 +155,12 @@ func _start_anim(model: Node3D) -> void:
 		anim.stop()
 		anim.get_animation("Take 001").loop_mode = Animation.LOOP_LINEAR
 		anim.play("Take 001")
+
+func _stop_moving() -> void:
+	_moving = false
+	velocity = Vector3.ZERO
+	if run_model.visible:
+		run_model.hide()
+		idle_model.show()
+		_start_anim(idle_model)
+	_update_path_line()
