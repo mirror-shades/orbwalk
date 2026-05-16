@@ -135,7 +135,7 @@ func _update_path_line() -> void:
 	_path_instance.visible = true
 	_path_mesh.surface_begin(Mesh.PRIMITIVE_LINE_STRIP)
 
-	var offset := Vector3(0, 0.1, 0)
+	var offset := Vector3(0, 0.5, 0)
 
 	if nav:
 		var nav_path := nav.get_current_navigation_path()

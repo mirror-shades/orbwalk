@@ -1,32 +1,32 @@
-[gd_scene load_steps=8 format=3 uid="uid://d0w6p4lw12hb"]
+[gd_scene format=3 uid="uid://d0w6p4lw12hb"]
 
 [ext_resource type="PackedScene" uid="uid://nv7gvcn1jvpm" path="res://gnome/forest_guard@idle.FBX" id="1_1sj24"]
-[ext_resource type="Script" path="res://scripts/camera_3d.gd" id="1_ixqay"]
+[ext_resource type="Script" uid="uid://dkkqfoxto2x7v" path="res://scripts/camera_3d.gd" id="1_ixqay"]
 [ext_resource type="PackedScene" uid="uid://dev8g1uncclk2" path="res://gnome/forest_guard@run.FBX" id="2_j52t0"]
-[ext_resource type="Script" path="res://scripts/mover.gd" id="2_k352v"]
+[ext_resource type="Script" uid="uid://cf7ay5aybrqx3" path="res://scripts/mover.gd" id="2_k352v"]
 [ext_resource type="PackedScene" uid="uid://ctrdi53dqtnx4" path="res://gnome/forest_guard@attack(2).FBX" id="4_t3sq0"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_rhj5t"]
 
-[node name="Gnome" type="CharacterBody3D"]
+[node name="Gnome" type="CharacterBody3D" unique_id=1298047770]
 script = ExtResource("2_k352v")
 
-[node name="Camera3D" type="Camera3D" parent="."]
+[node name="Camera3D" type="Camera3D" parent="." unique_id=2081001434]
 transform = Transform3D(0.022911, 0.870065, -0.492404, -0.0868241, 0.492404, 0.866025, 0.99596, 0.022911, 0.0868241, -6.01005, 9.44962, -0.00565052)
 current = true
 script = ExtResource("1_ixqay")
 target_path = NodePath("../Models")
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+[node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=49134022]
 transform = Transform3D(0.7, 0, 0, 0, 0.7, 0, 0, 0, 0.7, 0, 1, 0)
 shape = SubResource("CapsuleShape3D_rhj5t")
 
-[node name="NavigationAgent3D" type="NavigationAgent3D" parent="."]
+[node name="NavigationAgent3D" type="NavigationAgent3D" parent="." unique_id=1065881385]
 
-[node name="Models" type="Node3D" parent="."]
+[node name="Models" type="Node3D" parent="." unique_id=263811342]
 
-[node name="idle_model" parent="Models" instance=ExtResource("1_1sj24")]
+[node name="idle_model" parent="Models" unique_id=678860129 instance=ExtResource("1_1sj24")]
 
-[node name="attack_model" parent="Models" instance=ExtResource("4_t3sq0")]
+[node name="attack_model" parent="Models" unique_id=1567679645 instance=ExtResource("4_t3sq0")]
 
-[node name="run_model" parent="Models" instance=ExtResource("2_j52t0")]
+[node name="run_model" parent="Models" unique_id=369059493 instance=ExtResource("2_j52t0")]
