@@ -1,0 +1,27 @@
+[gd_resource type="Resource" script_class="EntityDefinition" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/entity_definition.gd" id="1_root"]
+
+[resource]
+script = ExtResource("1_root")
+entity_id = "bird"
+entity_name = "Striker Bird"
+stats_max_health = 400.0
+stats_health_regen = 3.0
+stats_max_mana = 200.0
+stats_mana_regen = 5.0
+stats_attack_damage = 45.0
+stats_ability_power = 0.0
+stats_armor = 20.0
+stats_magic_resist = 25.0
+stats_attack_speed = 0.75
+stats_attack_range = 1.2
+stats_movement_speed = 5.5
+growth_health = 60.0
+growth_health_regen = 0.3
+growth_mana = 25.0
+growth_mana_regen = 0.3
+growth_attack_damage = 2.5
+growth_armor = 2.0
+growth_magic_resist = 0.8
+growth_attack_speed = 0.015

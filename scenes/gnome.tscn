@@ -2,14 +2,17 @@
 
 [ext_resource type="PackedScene" uid="uid://nv7gvcn1jvpm" path="res://gnome/forest_guard@idle.FBX" id="1_1sj24"]
 [ext_resource type="Script" uid="uid://dkkqfoxto2x7v" path="res://scripts/camera_3d.gd" id="1_ixqay"]
+[ext_resource type="Resource" path="res://resources/definitions/gnome.tres" id="2_72rqq"]
 [ext_resource type="PackedScene" uid="uid://dev8g1uncclk2" path="res://gnome/forest_guard@run.FBX" id="2_j52t0"]
 [ext_resource type="Script" uid="uid://cf7ay5aybrqx3" path="res://scripts/mover.gd" id="2_k352v"]
 [ext_resource type="PackedScene" uid="uid://ctrdi53dqtnx4" path="res://gnome/forest_guard@attack(2).FBX" id="4_t3sq0"]
+[ext_resource type="Script" uid="uid://blvapwu0bmmay" path="res://scripts/health_bar.gd" id="5_hbar"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_rhj5t"]
 
 [node name="Gnome" type="CharacterBody3D" unique_id=1298047770]
 script = ExtResource("2_k352v")
+definition = ExtResource("2_72rqq")
 
 [node name="Camera3D" type="Camera3D" parent="." unique_id=2081001434]
 transform = Transform3D(0.022911, 0.870065, -0.492404, -0.0868241, 0.492404, 0.866025, 0.99596, 0.022911, 0.0868241, -6.01005, 9.44962, -0.00565052)
@@ -30,3 +33,8 @@ shape = SubResource("CapsuleShape3D_rhj5t")
 [node name="attack_model" parent="Models" unique_id=1567679645 instance=ExtResource("4_t3sq0")]
 
 [node name="run_model" parent="Models" unique_id=369059493 instance=ExtResource("2_j52t0")]
+
+[node name="HealthBar" type="Node3D" parent="." unique_id=380191065]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3, 0)
+script = ExtResource("5_hbar")
+bar_height = 0.35

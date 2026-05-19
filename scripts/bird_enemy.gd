@@ -1,6 +1,6 @@
 extends CharacterBody3D
 
-@export var move_speed: float = 4.0
+@export var definition: EntityDefinition
 @export var rotation_speed: float = 8.0
 @export var stop_distance: float = 1.5
 @export var attack_range: float = 2.5
@@ -11,19 +11,34 @@ extends CharacterBody3D
 var player: CharacterBody3D
 var attack_timer: float = 0.0
 var attack_tween: Tween
+var stats: StatsComponent = null
 
 @onready var nav: NavigationAgent3D = $NavigationAgent3D
 @onready var visual_pivot: Node3D = $VisualPivot
+@onready var health_bar: Node3D = $HealthBar
 
 func _ready() -> void:
+	_setup_stats()
 	player = get_tree().current_scene.get_node_or_null("Gnome") as CharacterBody3D
 	if not player:
 		push_error("BirdEnemy: Could not find Gnome player node!")
 
+func _setup_stats() -> void:
+	stats = $Stats if has_node("Stats") else StatsComponent.new()
+	if not stats.is_inside_tree():
+		stats.name = "Stats"
+		add_child(stats)
+	stats.initialize(definition)
+	stats.health_changed.connect(_on_health_changed)
+	if health_bar:
+		health_bar.max_health = stats.get_max_health()
+		health_bar.current_health = stats.current_health
+
 func _physics_process(delta: float) -> void:
-	if not player:
+	if not player or stats.is_dead:
 		return
 
+	var speed := stats.get_movement_speed()
 	var dist := global_position.distance_to(player.global_position)
 
 	if dist <= attack_range:
@@ -59,7 +74,7 @@ func _physics_process(delta: float) -> void:
 		return
 
 	dir = dir.normalized()
-	velocity = dir * move_speed
+	velocity = dir * speed
 	move_and_slide()
 
 	visual_pivot.rotation.y = lerp_angle(
@@ -86,9 +101,19 @@ func _do_attack() -> void:
 	attack_tween.tween_property(visual_pivot, "position", Vector3.ZERO, 0.15).set_ease(Tween.EASE_IN)
 	attack_tween.parallel().tween_property(visual_pivot, "scale", Vector3.ONE, 0.15).set_ease(Tween.EASE_IN)
 
+	var player_stats: StatsComponent = null
+	if player and player.has_node("Stats"):
+		player_stats = player.get_node("Stats") as StatsComponent
+	if player_stats:
+		player_stats.take_physical_damage(stats.get_attack_damage(), self)
+
 func _horizontal_direction_to(target_position: Vector3) -> Vector3:
 	var dir := target_position - global_position
 	dir.y = 0.0
 	if dir.length_squared() < 0.0001:
 		return Vector3.ZERO
 	return dir.normalized()
+
+func _on_health_changed(current: float, _max_hp: float) -> void:
+	if health_bar:
+		health_bar.current_health = current

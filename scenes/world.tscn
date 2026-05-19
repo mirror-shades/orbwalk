@@ -8,7 +8,7 @@
 [ext_resource type="PackedScene" uid="uid://b0nu278u2w3c0" path="res://scenes/trees.tscn" id="6_qfnet"]
 [ext_resource type="PackedScene" uid="uid://b4v3ih0bvbi40" path="res://scenes/tree.tscn" id="7_4mrxx"]
 [ext_resource type="PackedScene" uid="uid://c307k5sxjgnve" path="res://scenes/base.tscn" id="7_i7141"]
-[ext_resource type="PackedScene" path="res://scenes/bird_enemy.tscn" id="10_bird"]
+[ext_resource type="PackedScene" uid="uid://deu7qsue5rk0q" path="res://scenes/bird_enemy.tscn" id="10_bird"]
 
 [node name="World" type="Node3D" unique_id=1010209662]
 script = ExtResource("1_myxbl")
@@ -89,5 +89,5 @@ transform = Transform3D(-0.029132854, 0, 7.799946, 0, 7.8, 0, -7.799946, 0, -0.0
 [node name="Base2" parent="Bases" unique_id=1229168634 instance=ExtResource("7_i7141")]
 transform = Transform3D(9.301407e-08, 0, -7.8, 0, 7.8, 0, 7.8, 0, 9.301407e-08, 150, 0.6, 150)
 
-[node name="BirdEnemy" parent="." instance=ExtResource("10_bird")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10.8186035, 1.0, -34.651184)
+[node name="BirdEnemy" parent="." unique_id=364922038 instance=ExtResource("10_bird")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10.8186035, 1, -34.651184)

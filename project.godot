@@ -19,6 +19,10 @@ run/main_scene="res://scenes/world.tscn"
 config/features=PackedStringArray("4.6", "Forward Plus")
 config/icon="res://icon.svg"
 
+[autoload]
+
+EntityData="*uid://duqce4pevnom0"
+
 [dotnet]
 
 project/assembly_name="orbwalk"

@@ -1,0 +1,24 @@
+[gd_resource type="Resource" script_class="EntityDefinition" format=3 uid="uid://cmhuh5ew3k4x"]
+
+[ext_resource type="Script" uid="uid://b3ekkqnggn3b4" path="res://scripts/entity_definition.gd" id="1_0y36d"]
+
+[resource]
+script = ExtResource("1_0y36d")
+entity_id = "gnome"
+entity_name = "Forest Guard"
+stats_max_health = 600.0
+stats_health_regen = 6.0
+stats_max_mana = 350.0
+stats_mana_regen = 8.0
+stats_attack_damage = 65.0
+stats_armor = 35.0
+stats_magic_resist = 32.0
+stats_movement_speed = 6.0
+growth_health = 90.0
+growth_health_regen = 0.6
+growth_mana = 45.0
+growth_mana_regen = 0.6
+growth_attack_damage = 4.0
+growth_armor = 3.5
+growth_magic_resist = 1.2
+growth_attack_speed = 0.022

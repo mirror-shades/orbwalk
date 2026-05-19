@@ -2,6 +2,8 @@
 
 [ext_resource type="Script" uid="uid://dukph5ucurl6p" path="res://scripts/bird_enemy.gd" id="1_bird"]
 [ext_resource type="ArrayMesh" uid="uid://5tnsuhir03bl" path="res://textures/bird/bird.obj" id="2_bird"]
+[ext_resource type="Resource" path="res://resources/definitions/bird.tres" id="2_t6077"]
+[ext_resource type="Script" uid="uid://blvapwu0bmmay" path="res://scripts/health_bar.gd" id="3_hbar"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_bird"]
 radius = 1.27
@@ -9,14 +11,20 @@ height = 2.65
 
 [node name="BirdEnemy" type="CharacterBody3D" unique_id=415488088]
 script = ExtResource("1_bird")
+definition = ExtResource("2_t6077")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=534538165]
 shape = SubResource("CapsuleShape3D_bird")
 
 [node name="NavigationAgent3D" type="NavigationAgent3D" parent="." unique_id=528983336]
 
-[node name="VisualPivot" type="Node3D" parent="."]
+[node name="VisualPivot" type="Node3D" parent="." unique_id=1014137441]
 
 [node name="BirdMesh" type="MeshInstance3D" parent="VisualPivot" unique_id=894145171]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.4530381, -2.3841858e-07, 1.3141952)
 mesh = ExtResource("2_bird")
+
+[node name="HealthBar" type="Node3D" parent="." unique_id=1246488996]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3.5, 0)
+script = ExtResource("3_hbar")
+show_segments = false

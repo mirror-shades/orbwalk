@@ -1,6 +1,6 @@
 extends CharacterBody3D
 
-@export var move_speed: float = 6.0
+@export var definition: EntityDefinition
 @export var rotation_speed: float = 10.0
 @export var click_ray_length: float = 1000.0
 @export var stop_distance: float = 0.5
@@ -9,6 +9,9 @@ extends CharacterBody3D
 @onready var models: Node3D = $Models
 @onready var idle_model: Node3D = $Models/idle_model
 @onready var run_model: Node3D = $Models/run_model
+@onready var health_bar: Node3D = $HealthBar
+
+var stats: StatsComponent = null
 
 var _target: Vector3
 var _moving: bool = false
@@ -17,9 +20,21 @@ var _path_mesh: ImmediateMesh
 var _path_instance: MeshInstance3D
 
 func _ready() -> void:
+	_setup_stats()
 	run_model.hide()
 	$Models/attack_model.hide()
 	_setup_path_line()
+
+func _setup_stats() -> void:
+	stats = $Stats if has_node("Stats") else StatsComponent.new()
+	if not stats.is_inside_tree():
+		stats.name = "Stats"
+		add_child(stats)
+	stats.initialize(definition)
+	stats.health_changed.connect(_on_health_changed)
+	if health_bar:
+		health_bar.max_health = stats.get_max_health()
+		health_bar.current_health = stats.current_health
 
 func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_RIGHT and event.pressed:
@@ -41,6 +56,8 @@ func _unhandled_input(event: InputEvent) -> void:
 		_show_indicator(_target)
 
 func _physics_process(delta: float) -> void:
+	var speed := stats.get_movement_speed()
+
 	if not _moving:
 		velocity = Vector3.ZERO
 		if run_model.visible:
@@ -80,7 +97,7 @@ func _physics_process(delta: float) -> void:
 		run_model.show()
 		_start_anim(run_model)
 
-	velocity = dir * move_speed
+	velocity = dir * speed
 	move_and_slide()
 
 	models.rotation.y = lerp_angle(models.rotation.y, atan2(-dir.x, -dir.z), rotation_speed * delta)
@@ -164,3 +181,7 @@ func _stop_moving() -> void:
 		idle_model.show()
 		_start_anim(idle_model)
 	_update_path_line()
+
+func _on_health_changed(current: float, _max_hp: float) -> void:
+	if health_bar:
+		health_bar.current_health = current
