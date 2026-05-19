@@ -3,12 +3,12 @@
 [ext_resource type="PackedScene" uid="uid://dw3xdl5vw0xq5" path="res://scenes/level.tscn" id="1_2aokw"]
 [ext_resource type="Script" uid="uid://cmt7dwwqe5kla" path="res://scripts/world.gd" id="1_myxbl"]
 [ext_resource type="PackedScene" uid="uid://d0w6p4lw12hb" path="res://scenes/gnome.tscn" id="1_qk320"]
-[ext_resource type="PackedScene" uid="uid://dimbiircwg7ij" path="res://charizar.blend" id="2_qyhvr"]
 [ext_resource type="PackedScene" uid="uid://dxnqqu101hnum" path="res://scenes/walls.tscn" id="5_71j4m"]
 [ext_resource type="PackedScene" uid="uid://b0nu278u2w3c0" path="res://scenes/trees.tscn" id="6_qfnet"]
 [ext_resource type="PackedScene" uid="uid://b4v3ih0bvbi40" path="res://scenes/tree.tscn" id="7_4mrxx"]
 [ext_resource type="PackedScene" uid="uid://c307k5sxjgnve" path="res://scenes/base.tscn" id="7_i7141"]
-[ext_resource type="PackedScene" uid="uid://deu7qsue5rk0q" path="res://scenes/bird_enemy.tscn" id="10_bird"]
+[ext_resource type="PackedScene" uid="uid://dhey14joy6ig5" path="res://scenes/mushroom_king.tscn" id="9_7r4gi"]
+[ext_resource type="PackedScene" uid="uid://deu7qsue5rk0q" path="res://scenes/pigeon.tscn" id="9_w7kh3"]
 
 [node name="World" type="Node3D" unique_id=1010209662]
 script = ExtResource("1_myxbl")
@@ -18,9 +18,6 @@ transform = Transform3D(-1.2668236, 0, -0.29181728, 0, 1.3, 0, 0.29181728, 0, -1
 
 [node name="Level" parent="." unique_id=1271567071 instance=ExtResource("1_2aokw")]
 transform = Transform3D(1.08, 0, 0, 0, 1, 0, 0, 0, 1.08, 50.903076, 1.5258789e-05, 49.928345)
-
-[node name="Charizard" parent="." unique_id=61294670 instance=ExtResource("2_qyhvr")]
-transform = Transform3D(5, 0, 0, 0, 5, 0, 0, 0, 5, 51.891083, 1.3748436, 49.219154)
 
 [node name="Walls" parent="." unique_id=821364566 instance=ExtResource("5_71j4m")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 50, 0, 100)
@@ -89,5 +86,8 @@ transform = Transform3D(-0.029132854, 0, 7.799946, 0, 7.8, 0, -7.799946, 0, -0.0
 [node name="Base2" parent="Bases" unique_id=1229168634 instance=ExtResource("7_i7141")]
 transform = Transform3D(9.301407e-08, 0, -7.8, 0, 7.8, 0, 7.8, 0, 9.301407e-08, 150, 0.6, 150)
 
-[node name="BirdEnemy" parent="." unique_id=364922038 instance=ExtResource("10_bird")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10.8186035, 1, -34.651184)
+[node name="ShroomLord" parent="." unique_id=630415009 instance=ExtResource("9_7r4gi")]
+transform = Transform3D(2, 0, 0, 0, 2, 0, 0, 0, 2, 50, 0, 50)
+
+[node name="Pigeon" parent="." unique_id=415488088 instance=ExtResource("9_w7kh3")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 13.987804, 0, -34.257465)

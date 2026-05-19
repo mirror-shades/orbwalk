@@ -1,6 +1,5 @@
 extends Node3D
 
-@onready var charizard = $Charizard
 @onready var gnome = $Gnome
 
 @export var nav_agent_radius: float = 0.3
@@ -12,11 +11,6 @@ extends Node3D
 @export var nav_obstacle_padding: float = 0.35
 
 func _ready() -> void:
-	if not charizard:
-		push_error("Charizard node not found!")
-	if not gnome:
-		push_error("Gnome node not found!")
-
 	_create_navigation()
 
 func _create_navigation() -> void:

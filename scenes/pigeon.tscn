@@ -1,0 +1,28 @@
+[gd_scene format=3 uid="uid://deu7qsue5rk0q"]
+
+[ext_resource type="Script" uid="uid://cs7kbu5v5np81" path="res://scripts/pigeon.gd" id="1_3vycv"]
+[ext_resource type="PackedScene" uid="uid://ds5exhqtp5ix2" path="res://resources/Monsters/Flying/FBX/Pigeon.fbx" id="3_jdx28"]
+[ext_resource type="Script" uid="uid://blvapwu0bmmay" path="res://scripts/health_bar.gd" id="4_mi3ta"]
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_bird"]
+radius = 1.0
+height = 4.0
+
+[node name="Pigeon" type="CharacterBody3D" unique_id=415488088]
+script = ExtResource("1_3vycv")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=534538165]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.59758, 0)
+shape = SubResource("CapsuleShape3D_bird")
+
+[node name="NavigationAgent3D" type="NavigationAgent3D" parent="." unique_id=528983336]
+
+[node name="VisualPivot" type="Node3D" parent="." unique_id=1014137441]
+
+[node name="Pigeon" parent="VisualPivot" unique_id=678363000 instance=ExtResource("3_jdx28")]
+transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 0, 0, 0)
+
+[node name="HealthBar" type="Node3D" parent="." unique_id=1246488996]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3.5, 0)
+script = ExtResource("4_mi3ta")
+show_segments = false
