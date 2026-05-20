@@ -23,6 +23,8 @@ var _current_anim: String = ""
 
 func _ready() -> void:
 	_setup_stats()
+	add_to_group("enemy")
+	collision_layer = 2
 	player = get_tree().current_scene.get_node_or_null("Gnome") as CharacterBody3D
 	if not player:
 		push_error("BirdEnemy: Could not find Gnome player node!")
