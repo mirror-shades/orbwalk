@@ -25,6 +25,7 @@ var _path_instance: MeshInstance3D
 var _attack_target: CharacterBody3D = null
 var _attacking: bool = false
 var _in_attack_range: bool = false
+var _attack_winding_down: bool = false
 var _attack_cooldown_timer: float = 0.0
 var _attack_anim_time: float = 0.0
 var _damage_proc_timer: float = 0.0
@@ -112,6 +113,7 @@ func _clear_attack_target() -> void:
 	_attack_target = null
 	_attacking = false
 	_in_attack_range = false
+	_attack_winding_down = false
 	_attack_anim_time = 0.0
 	_damage_proc_timer = 0.0
 	_damage_dealt_this_swing = false
@@ -180,6 +182,8 @@ func _physics_process(delta: float) -> void:
 	_update_path_line()
 
 func _validate_attack_target() -> void:
+	if _attack_winding_down:
+		return
 	if not _attack_target:
 		_clear_attack_target()
 		return
@@ -189,10 +193,28 @@ func _validate_attack_target() -> void:
 		return
 	var target_stats: StatsComponent = _attack_target.get_node_or_null("Stats")
 	if not target_stats or target_stats.is_dead:
+		if attack_model.visible and _attack_anim_time > 0.0:
+			_attack_winding_down = true
+			return
 		_clear_attack_target()
 		_stop_moving()
 
 func _chase_and_attack(delta: float, speed: float) -> void:
+	if _attack_winding_down:
+		velocity = Vector3.ZERO
+		move_and_slide()
+		_attack_anim_time = maxf(_attack_anim_time - delta, 0.0)
+		if _attack_anim_time <= 0.0:
+			attack_model.hide()
+			idle_model.show()
+			_start_anim(idle_model)
+			_attack_target = null
+			_attacking = false
+			_in_attack_range = false
+			_attack_winding_down = false
+			_stop_moving()
+		return
+
 	if nav:
 		nav.target_position = _attack_target.global_position
 	_target = _attack_target.global_position
@@ -224,16 +246,16 @@ func _chase_and_attack(delta: float, speed: float) -> void:
 			idle_model.show()
 			_start_anim(idle_model)
 
+		if _attack_cooldown_timer <= 0.0 and dist <= attack_range:
+			_attack_cooldown_timer = 1.0 / stats.get_attack_speed()
+			_do_attack()
+
 		_damage_proc_timer = maxf(_damage_proc_timer - delta, 0.0)
 		if _damage_proc_timer <= 0.0 and not _damage_dealt_this_swing:
 			_damage_dealt_this_swing = true
 			var target_stats: StatsComponent = _attack_target.get_node_or_null("Stats")
 			if target_stats:
 				target_stats.take_physical_damage(stats.get_attack_damage(), self)
-
-		if _attack_cooldown_timer <= 0.0 and dist <= attack_range:
-			_attack_cooldown_timer = 1.0 / stats.get_attack_speed()
-			_do_attack()
 
 		_update_path_line()
 		return
