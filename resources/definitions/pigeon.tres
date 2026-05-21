@@ -6,6 +6,8 @@
 script = ExtResource("1_root")
 entity_id = "bird"
 entity_name = "Striker Bird"
+entity_type = 4
+team = 1
 stats_max_health = 400.0
 stats_health_regen = 3.0
 stats_max_mana = 200.0

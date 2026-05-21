@@ -1,8 +1,26 @@
 class_name EntityDefinition
 extends Resource
 
+enum EntityType {
+	CHAMPION,
+	MINION,
+	TOWER,
+	ORB,
+	JUNGLE,
+	SPAWNER,
+}
+
+enum Team {
+	TEAM_1,
+	TEAM_2,
+	NEUTRAL,
+}
+
 @export var entity_id: String = ""
 @export var entity_name: String = ""
+
+@export var entity_type: EntityType = EntityType.CHAMPION
+@export var team: Team = Team.TEAM_1
 
 @export_group("Base Stats", "stats_")
 @export var stats_max_health: float = 500.0

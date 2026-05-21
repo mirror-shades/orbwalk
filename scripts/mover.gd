@@ -1,9 +1,5 @@
-extends CharacterBody3D
+extends "res://scripts/entity.gd"
 
-const SWING_POINT_RATIO: float = 0.35
-
-@export var definition: EntityDefinition
-@export var rotation_speed: float = 10.0
 @export var click_ray_length: float = 1000.0
 @export var stop_distance: float = 0.5
 
@@ -12,9 +8,6 @@ const SWING_POINT_RATIO: float = 0.35
 @onready var idle_model: Node3D = $Models/idle_model
 @onready var run_model: Node3D = $Models/run_model
 @onready var attack_model: Node3D = $Models/attack_model
-@onready var health_bar: Node3D = $HealthBar
-
-var stats: StatsComponent = null
 
 var _target: Vector3
 var _moving: bool = false
@@ -22,35 +15,16 @@ var _indicator: MeshInstance3D
 var _path_mesh: ImmediateMesh
 var _path_instance: MeshInstance3D
 
-var _attack_target: CharacterBody3D = null
 var _attacking: bool = false
 var _in_attack_range: bool = false
 var _attack_winding_down: bool = false
-var _attack_cooldown_timer: float = 0.0
-var _attack_anim_time: float = 0.0
-var _damage_proc_timer: float = 0.0
-var _damage_dealt_this_swing: bool = false
 
-func _ready() -> void:
-	_setup_stats()
+func _on_entity_ready() -> void:
 	run_model.hide()
 	attack_model.hide()
-	collision_layer = 3
 	_setup_path_line()
 
-func _setup_stats() -> void:
-	stats = $Stats if has_node("Stats") else StatsComponent.new()
-	if not stats.is_inside_tree():
-		stats.name = "Stats"
-		add_child(stats)
-	stats.initialize(definition)
-	stats.health_changed.connect(_on_health_changed)
-	stats.died.connect(_on_died)
-	if health_bar:
-		health_bar.max_health = stats.get_max_health()
-		health_bar.current_health = stats.current_health
-
-func _unhandled_input(event: InputEvent) -> void:
+func _on_input(event: InputEvent) -> void:
 	if stats.is_dead:
 		return
 	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_RIGHT and event.pressed:
@@ -72,15 +46,16 @@ func _unhandled_input(event: InputEvent) -> void:
 			var space_state := world.direct_space_state
 			if space_state:
 				var query := PhysicsRayQueryParameters3D.create(origin, origin + dir * click_ray_length)
-				query.collision_mask = 2
+				query.collision_mask = ENTITY_LAYER
+				query.exclude = [self.get_rid()]
 				var result := space_state.intersect_ray(query)
 				if not result.is_empty():
 					var target := _find_attackable_target(result.collider)
 					if target:
-						_set_attack_target(target)
+						_begin_attack_target(target)
 						return
 
-		_clear_attack_target()
+		_stop_attacking()
 		if nav:
 			_target = NavigationServer3D.map_get_closest_point(nav.get_navigation_map(), _target)
 			nav.target_position = _target
@@ -88,17 +63,21 @@ func _unhandled_input(event: InputEvent) -> void:
 		_show_indicator(_target)
 
 func _find_attackable_target(collider) -> CharacterBody3D:
-	var node := collider as Node
-	while node:
-		if node is CharacterBody3D and node != self and node.is_in_group("enemy"):
-			for child in node.get_children():
+	var current := collider as Node
+	while current:
+		if current is CharacterBody3D and current != self:
+			var ts: StatsComponent = null
+			for child in current.get_children():
 				if child is StatsComponent and not child.is_dead:
-					return node
-		node = node.get_parent()
+					ts = child
+					break
+			if ts and EntityData.is_enemy(stats.get_team(), ts.get_team()):
+				return current
+		current = current.get_parent()
 	return null
 
-func _set_attack_target(target: CharacterBody3D) -> void:
-	_attack_target = target
+func _begin_attack_target(target: CharacterBody3D) -> void:
+	set_attack_target(target)
 	_attacking = true
 	_moving = true
 	_target = target.global_position
@@ -107,32 +86,57 @@ func _set_attack_target(target: CharacterBody3D) -> void:
 		nav.target_position = _target
 	_show_indicator(_target)
 
-func _clear_attack_target() -> void:
-	if _attacking and not _damage_dealt_this_swing:
-		_attack_cooldown_timer = 0.0
-	_attack_target = null
+func _stop_attacking() -> void:
 	_attacking = false
 	_in_attack_range = false
 	_attack_winding_down = false
-	_attack_anim_time = 0.0
-	_damage_proc_timer = 0.0
-	_damage_dealt_this_swing = false
+	clear_attack_target()
 	if attack_model.visible:
 		attack_model.hide()
+
+func _validate_attack_target() -> void:
+	if _attack_winding_down:
+		return
+	if not _attack_target:
+		return
+	if not is_attack_target_valid():
+		if attack_model.visible and is_attack_anim_active():
+			_attack_winding_down = true
+			return
+		_stop_attacking()
+		_stop_moving()
+
+func _scan_for_nearby_enemy() -> void:
+	var scan_range := stats.get_attack_range() + 0.75
+	var best_target: CharacterBody3D = null
+	var best_dist: float = INF
+
+	for node in EntityData.get_enemies_of(stats.get_team()):
+		if not is_instance_valid(node) or not node is CharacterBody3D:
+			continue
+		var dist := global_position.distance_to(node.global_position)
+		if dist <= scan_range and dist < best_dist:
+			best_target = node
+			best_dist = dist
+
+	if best_target:
+		_begin_attack_target(best_target)
 
 func _physics_process(delta: float) -> void:
 	if stats.is_dead:
 		velocity = Vector3.ZERO
 		return
 
-	_attack_cooldown_timer = maxf(_attack_cooldown_timer - delta, 0.0)
-
 	var speed := stats.get_movement_speed()
 
 	_validate_attack_target()
+	var damage_now := process_attack(delta)
+
+	if not _attacking and not _moving:
+		_scan_for_nearby_enemy()
 
 	if _attacking and _attack_target:
-		_chase_and_attack(delta, speed)
+		_chase_and_attack(delta, speed, damage_now)
 		return
 
 	if not _moving:
@@ -181,30 +185,11 @@ func _physics_process(delta: float) -> void:
 	models.rotation.y = lerp_angle(models.rotation.y, atan2(-move_dir.x, -move_dir.z), rotation_speed * delta)
 	_update_path_line()
 
-func _validate_attack_target() -> void:
-	if _attack_winding_down:
-		return
-	if not _attack_target:
-		_clear_attack_target()
-		return
-	if not is_instance_valid(_attack_target):
-		_clear_attack_target()
-		_stop_moving()
-		return
-	var target_stats: StatsComponent = _attack_target.get_node_or_null("Stats")
-	if not target_stats or target_stats.is_dead:
-		if attack_model.visible and _attack_anim_time > 0.0:
-			_attack_winding_down = true
-			return
-		_clear_attack_target()
-		_stop_moving()
-
-func _chase_and_attack(delta: float, speed: float) -> void:
+func _chase_and_attack(delta: float, speed: float, damage_now: bool) -> void:
 	if _attack_winding_down:
 		velocity = Vector3.ZERO
 		move_and_slide()
-		_attack_anim_time = maxf(_attack_anim_time - delta, 0.0)
-		if _attack_anim_time <= 0.0:
+		if not is_attack_anim_active():
 			attack_model.hide()
 			idle_model.show()
 			_start_anim(idle_model)
@@ -231,31 +216,20 @@ func _chase_and_attack(delta: float, speed: float) -> void:
 		velocity = Vector3.ZERO
 		move_and_slide()
 
-		var face_dir := _horizontal_direction_to(_attack_target.global_position)
-		if face_dir != Vector3.ZERO:
-			models.rotation.y = lerp_angle(
-				models.rotation.y,
-				atan2(-face_dir.x, -face_dir.z),
-				rotation_speed * delta
-			)
+		face_position(_attack_target.global_position, models, delta)
 
-		_attack_anim_time = maxf(_attack_anim_time - delta, 0.0)
-		if _attack_anim_time <= 0.0 and (attack_model.visible or run_model.visible):
+		if not is_attack_anim_active() and (attack_model.visible or run_model.visible):
 			attack_model.hide()
 			run_model.hide()
 			idle_model.show()
 			_start_anim(idle_model)
 
-		if _attack_cooldown_timer <= 0.0 and dist <= attack_range:
-			_attack_cooldown_timer = 1.0 / stats.get_attack_speed()
+		if can_attack():
+			start_attack_cooldown()
 			_do_attack()
 
-		_damage_proc_timer = maxf(_damage_proc_timer - delta, 0.0)
-		if _damage_proc_timer <= 0.0 and not _damage_dealt_this_swing:
-			_damage_dealt_this_swing = true
-			var target_stats: StatsComponent = _attack_target.get_node_or_null("Stats")
-			if target_stats:
-				target_stats.take_physical_damage(stats.get_attack_damage(), self)
+		if damage_now:
+			deal_attack_damage()
 
 		_update_path_line()
 		return
@@ -285,11 +259,7 @@ func _chase_and_attack(delta: float, speed: float) -> void:
 	velocity = move_dir * speed
 	move_and_slide()
 
-	models.rotation.y = lerp_angle(
-		models.rotation.y,
-		atan2(-move_dir.x, -move_dir.z),
-		rotation_speed * delta
-	)
+	models.rotation.y = lerp_angle(models.rotation.y, atan2(-move_dir.x, -move_dir.z), rotation_speed * delta)
 	_update_path_line()
 
 func _do_attack() -> void:
@@ -306,20 +276,9 @@ func _do_attack() -> void:
 		var a := anim.get_animation("Take 001")
 		a.loop_mode = Animation.LOOP_NONE
 		anim.play("Take 001")
-		_attack_anim_time = a.length
-		_damage_proc_timer = a.length * SWING_POINT_RATIO
+		begin_attack_anim(a.length, 0.5)
 	else:
-		_attack_anim_time = 0.3
-		_damage_proc_timer = 0.3 * SWING_POINT_RATIO
-
-	_damage_dealt_this_swing = false
-
-func _horizontal_direction_to(target_pos: Vector3) -> Vector3:
-	var dir := target_pos - global_position
-	dir.y = 0.0
-	if dir.length_squared() < 0.0001:
-		return Vector3.ZERO
-	return dir.normalized()
+		begin_attack_anim(0.3, 0.5)
 
 func _show_indicator(pos: Vector3) -> void:
 	if not _indicator:
@@ -401,14 +360,6 @@ func _stop_moving() -> void:
 		_start_anim(idle_model)
 	_update_path_line()
 
-func _on_health_changed(current: float, _max_hp: float) -> void:
-	if health_bar:
-		health_bar.current_health = current
-
-func _on_died() -> void:
-	_clear_attack_target()
-	_attack_cooldown_timer = 0.0
+func _on_entity_died() -> void:
+	_stop_attacking()
 	_stop_moving()
-	$CollisionShape3D.set_deferred("disabled", true)
-	if nav:
-		nav.set_deferred("avoidance_enabled", false)

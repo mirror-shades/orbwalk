@@ -58,6 +58,12 @@ func get_attack_speed() -> float:
 func get_attack_range() -> float:
 	return definition.stats_attack_range if definition else 1.5
 
+func get_team() -> int:
+	return definition.team if definition else EntityDefinition.Team.NEUTRAL
+
+func get_entity_type() -> int:
+	return definition.entity_type if definition else EntityDefinition.EntityType.MINION
+
 func get_movement_speed() -> float:
 	return _base_or_default("stats_movement_speed", null, 5.0) + bonus_movement_speed
 
