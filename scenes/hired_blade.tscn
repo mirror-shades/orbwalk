@@ -1,0 +1,39 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/mover.gd" id="1_mover"]
+[ext_resource type="Resource" path="res://resources/definitions/hired_blade.tres" id="2_def"]
+[ext_resource type="PackedScene" path="res://assets/models/champions/ninja_sand/Ninja_Sand.gltf" id="3_model"]
+[ext_resource type="Script" path="res://scripts/health_bar.gd" id="4_hbar"]
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_hb"]
+radius = 0.5
+height = 2.4
+
+[node name="HiredBlade" type="CharacterBody3D"]
+script = ExtResource("1_mover")
+definition = ExtResource("2_def")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+transform = Transform3D(0.7, 0, 0, 0, 0.7, 0, 0, 0, 0.7, 0, 0.8, 0)
+shape = SubResource("CapsuleShape3D_hb")
+
+[node name="NavigationAgent3D" type="NavigationAgent3D" parent="."]
+
+[node name="Models" type="Node3D" parent="."]
+
+[node name="idle_model" parent="Models" instance=ExtResource("3_model")]
+transform = Transform3D(-0.8, 0, 0, 0, 0.8, 0, 0, 0, -0.8, 0, 0, 0)
+metadata/anim = "Idle"
+
+[node name="attack_model" parent="Models" instance=ExtResource("3_model")]
+transform = Transform3D(-0.8, 0, 0, 0, 0.8, 0, 0, 0, -0.8, 0, 0, 0)
+metadata/anim = "SwordSlash"
+
+[node name="run_model" parent="Models" instance=ExtResource("3_model")]
+transform = Transform3D(-0.8, 0, 0, 0, 0.8, 0, 0, 0, -0.8, 0, 0, 0)
+metadata/anim = "Run"
+
+[node name="HealthBar" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3, 0)
+script = ExtResource("4_hbar")
+bar_height = 0.35

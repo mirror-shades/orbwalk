@@ -2,7 +2,7 @@
 
 [ext_resource type="Script" uid="uid://cs7kbu5v5np81" path="res://scripts/pigeon.gd" id="1_3vycv"]
 [ext_resource type="Resource" path="res://resources/definitions/pigeon.tres" id="2_def"]
-[ext_resource type="PackedScene" uid="uid://ds5exhqtp5ix2" path="res://resources/Monsters/Flying/FBX/Pigeon.fbx" id="3_jdx28"]
+[ext_resource type="PackedScene" path="res://assets/models/monsters/Flying/FBX/Pigeon.fbx" id="3_jdx28"]
 [ext_resource type="Script" uid="uid://blvapwu0bmmay" path="res://scripts/health_bar.gd" id="4_mi3ta"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_bird"]

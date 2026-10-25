@@ -1,0 +1,58 @@
+[gd_scene format=3 uid="uid://et52exnmf3y2"]
+
+[ext_resource type="PackedScene" uid="uid://b5dleuqp2mpwt" path="res://assets/models/buildings/FBX/WatchTower_SecondAge_Level2.fbx" id="1_qqdjg"]
+[ext_resource type="PackedScene" uid="uid://eqix5g8rxfgk" path="res://assets/models/buildings/FBX/WatchTower_SecondAge_Level1.fbx" id="2_jwnxg"]
+
+[node name="Towers" type="Node3D" unique_id=1567662832]
+
+[node name="RedTowers" type="Node3D" parent="." unique_id=1214151713]
+
+[node name="WatchTower_SecondAge_Level1" parent="RedTowers" unique_id=1492748981 instance=ExtResource("2_jwnxg")]
+transform = Transform3D(5, 0, 0, 0, 5, 0, 0, 0, 5, 13.962065, 0, 64.16371)
+
+[node name="WatchTower_SecondAge_Level10" parent="RedTowers" unique_id=24734758 instance=ExtResource("2_jwnxg")]
+transform = Transform3D(5, 0, 0, 0, 5, 0, 0, 0, 5, 63.132347, 0, 13.093246)
+
+[node name="WatchTower_SecondAge_Level11" parent="RedTowers" unique_id=837980673 instance=ExtResource("2_jwnxg")]
+transform = Transform3D(5, 0, 0, 0, 5, 0, 0, 0, 5, 118.33792, 0, -39.647858)
+
+[node name="WatchTower_SecondAge_Level12" parent="RedTowers" unique_id=217853005 instance=ExtResource("2_jwnxg")]
+transform = Transform3D(5, 0, 0, 0, 5, 0, 0, 0, 5, -39.164368, 0, 113.42743)
+
+[node name="WatchTower_SecondAge_Level13" parent="RedTowers" unique_id=2048002133 instance=ExtResource("2_jwnxg")]
+transform = Transform3D(5, 0, 0, 0, 5, 0, 0, 0, 5, -29.164368, 0, 36.42743)
+
+[node name="WatchTower_SecondAge_Level14" parent="RedTowers" unique_id=1548817860 instance=ExtResource("2_jwnxg")]
+transform = Transform3D(5, 0, 0, 0, 5, 0, 0, 0, 5, -9.53154, 0, 30.826714)
+
+[node name="WatchTower_SecondAge_Level15" parent="RedTowers" unique_id=911016499 instance=ExtResource("2_jwnxg")]
+transform = Transform3D(5, 0, 0, 0, 5, 0, 0, 0, 5, 31.695705, 0, -12.37751)
+
+[node name="WatchTower_SecondAge_Level16" parent="RedTowers" unique_id=1479639697 instance=ExtResource("2_jwnxg")]
+transform = Transform3D(5, 0, 0, 0, 5, 0, 0, 0, 5, 37.537334, 0, -30.984497)
+
+[node name="GreyTowers" type="Node3D" parent="." unique_id=1152089841]
+
+[node name="WatchTower_SecondAge_Level2" parent="GreyTowers" unique_id=1171328456 instance=ExtResource("1_qqdjg")]
+transform = Transform3D(5, 0, 0, 0, 5, 0, 0, 0, 5, 85.72673, 0, 34.91148)
+
+[node name="WatchTower_SecondAge_Level7" parent="GreyTowers" unique_id=1906928817 instance=ExtResource("1_qqdjg")]
+transform = Transform3D(5, 0, 0, 0, 5, 0, 0, 0, 5, 112.23512, 0, 69.97584)
+
+[node name="WatchTower_SecondAge_Level8" parent="GreyTowers" unique_id=2059133032 instance=ExtResource("1_qqdjg")]
+transform = Transform3D(5, 0, 0, 0, 5, 0, 0, 0, 5, 69.72158, 0, 111.37268)
+
+[node name="WatchTower_SecondAge_Level9" parent="GreyTowers" unique_id=447291065 instance=ExtResource("1_qqdjg")]
+transform = Transform3D(5, 0, 0, 0, 5, 0, 0, 0, 5, 62.13049, 0, 127.80101)
+
+[node name="WatchTower_SecondAge_Level3" parent="GreyTowers" unique_id=1311735468 instance=ExtResource("1_qqdjg")]
+transform = Transform3D(5, 0, 0, 0, 5, 0, 0, 0, 5, 35.70071, 0, 85.06057)
+
+[node name="WatchTower_SecondAge_Level4" parent="GreyTowers" unique_id=1891871608 instance=ExtResource("1_qqdjg")]
+transform = Transform3D(5, 0, 0, 0, 5, 0, 0, 0, 5, -19.422468, 0, 139.10155)
+
+[node name="WatchTower_SecondAge_Level5" parent="GreyTowers" unique_id=312592894 instance=ExtResource("1_qqdjg")]
+transform = Transform3D(5, 0, 0, 0, 5, 0, 0, 0, 5, 139.86867, 0, -22.039772)
+
+[node name="WatchTower_SecondAge_Level6" parent="GreyTowers" unique_id=934861871 instance=ExtResource("1_qqdjg")]
+transform = Transform3D(5, 0, 0, 0, 5, 0, 0, 0, 5, 128.76964, 0, 57.533867)

@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://dhey14joy6ig5"]
 
-[ext_resource type="PackedScene" uid="uid://dwltkfydkfrrl" path="res://resources/Monsters/Big/FBX/MushroomKing.fbx" id="1_6mdmi"]
+[ext_resource type="PackedScene" path="res://assets/models/monsters/Big/FBX/MushroomKing.fbx" id="1_6mdmi"]
 
 [sub_resource type="CylinderShape3D" id="CylinderShape3D_f5sjd"]
 height = 3.0

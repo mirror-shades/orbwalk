@@ -1,9 +1,12 @@
-extends "res://scripts/entity.gd"
+extends Entity
 
-@export var click_ray_length: float = 1000.0
 @export var stop_distance: float = 0.5
+## Once an auto-attack has started, its damage lands even if the target keeps
+## running: the swing follows through up to this many meters past attack range.
+## Only a real escape (a dash/blink further than this) cancels the swing, and that
+## cancels without using up the attack cooldown. Ordered moves still cancel swings.
+@export var attack_follow_through: float = 3.0
 
-@onready var nav: NavigationAgent3D = $NavigationAgent3D
 @onready var models: Node3D = $Models
 @onready var idle_model: Node3D = $Models/idle_model
 @onready var run_model: Node3D = $Models/run_model
@@ -11,9 +14,6 @@ extends "res://scripts/entity.gd"
 
 var _target: Vector3
 var _moving: bool = false
-var _indicator: MeshInstance3D
-var _path_mesh: ImmediateMesh
-var _path_instance: MeshInstance3D
 
 var _attacking: bool = false
 var _in_attack_range: bool = false
@@ -22,59 +22,44 @@ var _attack_winding_down: bool = false
 func _on_entity_ready() -> void:
 	run_model.hide()
 	attack_model.hide()
-	_setup_path_line()
 
-func _on_input(event: InputEvent) -> void:
-	if stats.is_dead:
-		return
-	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_RIGHT and event.pressed:
-		var camera := get_viewport().get_camera_3d()
-		if not camera:
-			return
-		var origin := camera.project_ray_origin(event.position)
-		var dir := camera.project_ray_normal(event.position)
+# ---- Orders ----
+# Called by ProtoGame.execute_command() (from the local PlayerController or a bot).
+# Input is never read here: see player_controller.gd.
 
-		var t := -origin.y / dir.y
-		if t > 0.0:
-			_target = origin + dir * t
-		else:
-			_target = origin + dir * click_ray_length
-		_target.y = 0.0
+## True while the unit is walking to a point or chasing a target.
+func is_moving() -> bool:
+	return _moving
 
-		var world := get_world_3d()
-		if world:
-			var space_state := world.direct_space_state
-			if space_state:
-				var query := PhysicsRayQueryParameters3D.create(origin, origin + dir * click_ray_length)
-				query.collision_mask = ENTITY_LAYER
-				query.exclude = [self.get_rid()]
-				var result := space_state.intersect_ray(query)
-				if not result.is_empty():
-					var target := _find_attackable_target(result.collider)
-					if target:
-						_begin_attack_target(target)
-						return
 
-		_stop_attacking()
-		if nav:
-			_target = NavigationServer3D.map_get_closest_point(nav.get_navigation_map(), _target)
-			nav.target_position = _target
-		_moving = true
-		_show_indicator(_target)
+## Walk to `pos`, dropping any attack target.
+func order_move(pos: Vector3) -> void:
+	_stop_attacking()
+	_target = Vector3(pos.x, 0.0, pos.z)
+	_moving = true
 
-func _find_attackable_target(collider) -> CharacterBody3D:
-	var current := collider as Node
-	while current:
-		if current is CharacterBody3D and current != self:
-			var ts: StatsComponent = null
-			for child in current.get_children():
-				if child is StatsComponent and not child.is_dead:
-					ts = child
-					break
-			if ts and EntityData.is_enemy(stats.get_team(), ts.get_team()):
-				return current
-		current = current.get_parent()
-	return null
+
+## Chase and auto-attack `target`. Returns "" or why it can't.
+func order_attack(target: Node) -> String:
+	if not can_target(target):
+		return "You can't attack that."
+	_begin_attack_target(target as CharacterBody3D)
+	return ""
+
+
+## Stand still.
+func order_stop() -> void:
+	_stop_attacking()
+	_stop_moving()
+
+
+## True if `node` is something this champion may auto-attack: a living, visible enemy.
+func can_target(node: Node) -> bool:
+	if node == null or node == self or not node is CharacterBody3D or not is_instance_valid(node):
+		return false
+	var ts := EntityData.get_stats_of(node)
+	return ts != null and not ts.is_dead and EntityData.is_enemy(stats.get_team(), ts.get_team()) 			and FogOfWar.can_see(stats.get_team(), node)
+
 
 func _begin_attack_target(target: CharacterBody3D) -> void:
 	set_attack_target(target)
@@ -82,9 +67,6 @@ func _begin_attack_target(target: CharacterBody3D) -> void:
 	_moving = true
 	_target = target.global_position
 	_target.y = 0.0
-	if nav:
-		nav.target_position = _target
-	_show_indicator(_target)
 
 func _stop_attacking() -> void:
 	_attacking = false
@@ -106,13 +88,49 @@ func _validate_attack_target() -> void:
 		_stop_attacking()
 		_stop_moving()
 
+func _on_feared(dir: Vector3, delta: float) -> void:
+	if _attacking:
+		_stop_attacking()
+	_moving = false
+	_show_running(dir, delta)
+
+func _on_stunned(_delta: float) -> void:
+	_moving = false
+	if not idle_model.visible:
+		attack_model.hide()
+		run_model.hide()
+		idle_model.show()
+		_start_anim(idle_model)
+
+## Turns the model toward `dir`, unless a volley is locking its facing.
+func _turn_model(dir: Vector3, delta: float) -> void:
+	if firing_lock:
+		return
+	models.rotation.y = lerp_angle(models.rotation.y, atan2(-dir.x, -dir.z), minf(rotation_speed * delta, 1.0))
+
+func _on_forced_move(dir: Vector3, delta: float) -> void:
+	_show_running(dir, delta)
+
+func _on_forced_move_started() -> void:
+	# A dash cancels a plain move order but keeps chasing an attack target.
+	if not _attacking:
+		_moving = false
+
+func _show_running(dir: Vector3, delta: float) -> void:
+	if not run_model.visible:
+		idle_model.hide()
+		attack_model.hide()
+		run_model.show()
+		_start_anim(run_model)
+	_turn_model(dir, delta)
+
 func _scan_for_nearby_enemy() -> void:
 	var scan_range := stats.get_attack_range() + 0.75
 	var best_target: CharacterBody3D = null
 	var best_dist: float = INF
 
 	for node in EntityData.get_enemies_of(stats.get_team()):
-		if not is_instance_valid(node) or not node is CharacterBody3D:
+		if not is_instance_valid(node) or not node is CharacterBody3D or not FogOfWar.can_see(stats.get_team(), node):
 			continue
 		var dist := global_position.distance_to(node.global_position)
 		if dist <= scan_range and dist < best_dist:
@@ -125,6 +143,11 @@ func _scan_for_nearby_enemy() -> void:
 func _physics_process(delta: float) -> void:
 	if stats.is_dead:
 		velocity = Vector3.ZERO
+		return
+
+	# Fear and dashes take over movement; attack cooldowns keep ticking.
+	if process_crowd_control(delta):
+		_attack_cooldown_timer = maxf(_attack_cooldown_timer - delta, 0.0)
 		return
 
 	var speed := stats.get_movement_speed()
@@ -146,44 +169,33 @@ func _physics_process(delta: float) -> void:
 		if not idle_model.visible:
 			idle_model.show()
 			_start_anim(idle_model)
-		_update_path_line()
 		return
 
-	var next_pos: Vector3 = _target
-	if nav:
-		if nav.is_navigation_finished():
-			_stop_moving()
-			return
-		next_pos = nav.get_next_path_position()
+	# Rooted: hold position instead of walking.
+	if status_effects() != null and status_effects().is_rooted():
+		velocity = Vector3.ZERO
+		move_and_slide()
+		attack_model.hide()
+		run_model.hide()
+		if not idle_model.visible:
+			idle_model.show()
+			_start_anim(idle_model)
+		return
 
-	var move_dir: Vector3 = next_pos - global_position
-	move_dir.y = 0.0
-
-	if move_dir.length() < 0.01:
-		if not nav:
-			move_dir = _target - global_position
-			move_dir.y = 0.0
-		else:
-			velocity = Vector3.ZERO
-			_update_path_line()
-			return
-
-	if not nav and move_dir.length() <= stop_distance:
+	var move_vel := navigate_toward(_target, speed, stop_distance)
+	if move_vel == Vector3.ZERO:
 		_stop_moving()
 		return
-
-	move_dir = move_dir.normalized()
 
 	if not run_model.visible:
 		idle_model.hide()
 		run_model.show()
 		_start_anim(run_model)
 
-	velocity = move_dir * speed
+	velocity = move_vel
 	move_and_slide()
 
-	models.rotation.y = lerp_angle(models.rotation.y, atan2(-move_dir.x, -move_dir.z), rotation_speed * delta)
-	_update_path_line()
+	_turn_model(move_vel, delta)
 
 func _chase_and_attack(delta: float, speed: float, damage_now: bool) -> void:
 	if _attack_winding_down:
@@ -200,12 +212,23 @@ func _chase_and_attack(delta: float, speed: float, damage_now: bool) -> void:
 			_stop_moving()
 		return
 
-	if nav:
-		nav.target_position = _attack_target.global_position
 	_target = _attack_target.global_position
 
 	var dist := global_position.distance_to(_attack_target.global_position)
 	var attack_range := stats.get_attack_range()
+
+	# A started swing commits: resolve it wherever the target is now.
+	if damage_now:
+		_resolve_attack_damage(dist, attack_range)
+
+	# The windup roots the attacker: no chasing until the damage point, so a swing
+	# can't be started in range and then landed on the run. After the damage point
+	# the backswing can be walked out of as usual.
+	if is_attack_anim_active() and not _damage_dealt_this_swing:
+		velocity = Vector3.ZERO
+		move_and_slide()
+		face_position(_attack_target.global_position, models, delta)
+		return
 
 	if _in_attack_range and dist > attack_range + 1.0:
 		_in_attack_range = false
@@ -228,27 +251,23 @@ func _chase_and_attack(delta: float, speed: float, damage_now: bool) -> void:
 			start_attack_cooldown()
 			_do_attack()
 
-		if damage_now:
-			deal_attack_damage()
-
-		_update_path_line()
 		return
 
-	var next_pos: Vector3 = _target
-	if nav:
-		if nav.is_navigation_finished():
-			return
-		next_pos = nav.get_next_path_position()
-
-	var move_dir := next_pos - global_position
-	move_dir.y = 0.0
-
-	if move_dir.length() < 0.01:
+	# Rooted: can't close the gap. Hold still and keep facing the target.
+	if status_effects() != null and status_effects().is_rooted():
 		velocity = Vector3.ZERO
-		_update_path_line()
+		move_and_slide()
+		face_position(_attack_target.global_position, models, delta)
+		attack_model.hide()
+		run_model.hide()
+		if not idle_model.visible:
+			idle_model.show()
+			_start_anim(idle_model)
 		return
 
-	move_dir = move_dir.normalized()
+	var move_vel := navigate_toward(_target, speed, 0.0)
+	if move_vel == Vector3.ZERO:
+		return
 
 	if not run_model.visible:
 		idle_model.hide()
@@ -256,99 +275,66 @@ func _chase_and_attack(delta: float, speed: float, damage_now: bool) -> void:
 		run_model.show()
 		_start_anim(run_model)
 
-	velocity = move_dir * speed
+	velocity = move_vel
 	move_and_slide()
 
-	models.rotation.y = lerp_angle(models.rotation.y, atan2(-move_dir.x, -move_dir.z), rotation_speed * delta)
-	_update_path_line()
+	_turn_model(move_vel, delta)
+
+## The damage point of a started swing. It follows through as long as the target is
+## within attack range plus the follow-through reach; only a bigger escape cancels
+## it. A cancelled swing refunds its cooldown: chasing a runner never costs a full
+## attack.
+func _resolve_attack_damage(dist: float, attack_range: float) -> void:
+	if _attack_target and is_instance_valid(_attack_target) and dist <= attack_range + attack_follow_through:
+		deal_attack_damage()
+	else:
+		_cancel_attack_swing()
+
+
+## Ends a swing that was escaped from, without the cooldown penalty.
+func _cancel_attack_swing() -> void:
+	_attack_anim_time = 0.0
+	_damage_proc_timer = 0.0
+	_damage_dealt_this_swing = false
+	_attack_cooldown_timer = 0.0
+	attack_model.hide()
+
 
 func _do_attack() -> void:
 	if not _attack_target or not is_instance_valid(_attack_target):
 		return
 
+	break_stealth()
 	idle_model.hide()
 	run_model.hide()
 	attack_model.show()
 
 	var anim := attack_model.get_node("AnimationPlayer") as AnimationPlayer
-	if anim and anim.has_animation("Take 001"):
+	var anim_name := _anim_name(attack_model)
+	if anim and anim.has_animation(anim_name):
 		anim.stop()
-		var a := anim.get_animation("Take 001")
+		var a := anim.get_animation(anim_name)
 		a.loop_mode = Animation.LOOP_NONE
-		anim.play("Take 001")
-		begin_attack_anim(a.length, 0.5)
+		# Speed the swing up if it's longer than the time between attacks.
+		var interval := 1.0 / maxf(stats.get_attack_speed(), 0.01)
+		var speed_scale := maxf(1.0, a.length / interval)
+		anim.play(anim_name, -1.0, speed_scale)
+		begin_attack_anim(a.length / speed_scale, 0.5)
 	else:
 		begin_attack_anim(0.3, 0.5)
 
-func _show_indicator(pos: Vector3) -> void:
-	if not _indicator:
-		var disc := CylinderMesh.new()
-		disc.top_radius = 0.35
-		disc.bottom_radius = 0.35
-		disc.height = 0.02
-		var mat := StandardMaterial3D.new()
-		mat.albedo_color = Color(0.2, 0.9, 0.2, 0.7)
-		mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
-		mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-		_indicator = MeshInstance3D.new()
-		_indicator.name = "ClickIndicator"
-		_indicator.mesh = disc
-		_indicator.material_override = mat
-		_indicator.visible = false
-		get_tree().current_scene.add_child(_indicator)
-
-	_indicator.global_position = Vector3(pos.x, 0.05, pos.z)
-	_indicator.scale = Vector3.ZERO
-	_indicator.visible = true
-	var tw := create_tween()
-	tw.tween_property(_indicator, "scale", Vector3.ONE, 0.1).set_ease(Tween.EASE_OUT)
-	tw.tween_property(_indicator, "scale", Vector3.ZERO, 0.2).set_ease(Tween.EASE_IN)
-	tw.tween_callback(func(): _indicator.visible = false)
-
-func _setup_path_line() -> void:
-	_path_instance = MeshInstance3D.new()
-	_path_instance.name = "PathLine"
-	_path_mesh = ImmediateMesh.new()
-	_path_instance.mesh = _path_mesh
-	var mat := StandardMaterial3D.new()
-	mat.albedo_color = Color(1.0, 0.85, 0.0, 0.8)
-	mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-	mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
-	_path_instance.material_override = mat
-	get_tree().current_scene.add_child.call_deferred(_path_instance)
-
-func _update_path_line() -> void:
-	if not _path_mesh:
-		return
-	_path_mesh.clear_surfaces()
-
-	if not _moving:
-		_path_instance.visible = false
-		return
-
-	_path_instance.visible = true
-	_path_mesh.surface_begin(Mesh.PRIMITIVE_LINE_STRIP)
-
-	var offset := Vector3(0, 0.5, 0)
-
-	if nav:
-		var nav_path := nav.get_current_navigation_path()
-		if nav_path.size() > 1:
-			for pt in nav_path:
-				_path_mesh.surface_add_vertex(pt + offset)
-			_path_mesh.surface_end()
-			return
-
-	_path_mesh.surface_add_vertex(global_position + offset)
-	_path_mesh.surface_add_vertex(_target + offset)
-	_path_mesh.surface_end()
-
 func _start_anim(model: Node3D) -> void:
 	var anim := model.get_node("AnimationPlayer") as AnimationPlayer
-	if anim and anim.has_animation("Take 001"):
+	var anim_name := _anim_name(model)
+	if anim and anim.has_animation(anim_name):
 		anim.stop()
-		anim.get_animation("Take 001").loop_mode = Animation.LOOP_LINEAR
-		anim.play("Take 001")
+		anim.get_animation(anim_name).loop_mode = Animation.LOOP_LINEAR
+		anim.play(anim_name)
+
+## Which animation a model plays. Models with one clip use "Take 001"; models with
+## many clips (like the Cleric) name theirs with an "anim" metadata entry on the node.
+func _anim_name(model: Node3D) -> String:
+	return str(model.get_meta("anim", "Take 001"))
 
 func _stop_moving() -> void:
 	_moving = false
@@ -358,7 +344,6 @@ func _stop_moving() -> void:
 	if not idle_model.visible:
 		idle_model.show()
 		_start_anim(idle_model)
-	_update_path_line()
 
 func _on_entity_died() -> void:
 	_stop_attacking()

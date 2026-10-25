@@ -1,0 +1,226 @@
+[gd_scene format=3 uid="uid://bruihmc2h0io1"]
+
+[ext_resource type="PackedScene" uid="uid://b0nu278u2w3c0" path="res://scenes/trees.tscn" id="1_pls23"]
+[ext_resource type="PackedScene" uid="uid://c307k5sxjgnve" path="res://scenes/base_collision.tscn" id="2_qj3iy"]
+[ext_resource type="PackedScene" uid="uid://cq2pcb1xdkyed" path="res://scenes/hex.tscn" id="8_55716"]
+
+[node name="WorldMap" type="Node3D" unique_id=1161218437]
+
+[node name="TreesVisual" parent="." unique_id=1482875074 instance=ExtResource("1_pls23")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.054210663, 0, -0.0037841797)
+
+[node name="BaseCollision" type="Node3D" parent="." unique_id=499560670]
+
+[node name="Base" parent="BaseCollision" unique_id=2055862855 instance=ExtResource("2_qj3iy")]
+transform = Transform3D(-0.029132854, 0, 7.799946, 0, 7.8, 0, -7.799946, 0, -0.029132854, -60.88922, 0.6, -62.241554)
+
+[node name="Base2" parent="BaseCollision" unique_id=810384166 instance=ExtResource("2_qj3iy")]
+transform = Transform3D(9.301407e-08, 0, -7.8, 0, 7.8, 0, 7.8, 0, 9.301407e-08, 160.73097, 0.6, 161.75964)
+
+[node name="hexes" type="Node3D" parent="." unique_id=1157435586]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.8576813, 0, 2.859871)
+visible = false
+
+[node name="Hex" parent="hexes" unique_id=13450712 instance=ExtResource("8_55716")]
+transform = Transform3D(0.809017, 0, 0.58778524, 0, 1, 0, -0.58778524, 0, 0.809017, 34.91007, 0.085, 84.48927)
+
+[node name="Hex2" parent="hexes" unique_id=568838495 instance=ExtResource("8_55716")]
+transform = Transform3D(0.8090169, 0, 0.5877852, 0, 1, 0, -0.5877852, 0, 0.8090169, 33.88257, 0.085, 86.797)
+
+[node name="Hex25" parent="hexes" unique_id=1971423079 instance=ExtResource("8_55716")]
+transform = Transform3D(0.8090169, 0, 0.5877852, 0, 1, 0, -0.5877852, 0, 0.8090169, 37.39357, 0.085, 84.23518)
+
+[node name="Hex26" parent="hexes" unique_id=2053969279 instance=ExtResource("8_55716")]
+transform = Transform3D(0.8090169, 0, 0.5877852, 0, 1, 0, -0.5877852, 0, 0.8090169, 38.87343, 0.085, 86.245)
+
+[node name="Hex27" parent="hexes" unique_id=282899763 instance=ExtResource("8_55716")]
+transform = Transform3D(0.8090169, 0, 0.5877852, 0, 1, 0, -0.5877852, 0, 0.8090169, 36.246258, 0.085, 97.55268)
+
+[node name="Hex3" parent="hexes" unique_id=2003882632 instance=ExtResource("8_55716")]
+transform = Transform3D(0.819152, 0, 0.5735764, 0, 1, 0, -0.5735764, 0, 0.819152, 36.39456, 0.085, 86.56522)
+
+[node name="Hex4" parent="hexes" unique_id=1991141614 instance=ExtResource("8_55716")]
+transform = Transform3D(0.809017, 0, 0.58778524, 0, 1, 0, -0.58778524, 0, 0.809017, 32.857162, 0.085, 89.10405)
+
+[node name="Hex5" parent="hexes" unique_id=28144552 instance=ExtResource("8_55716")]
+transform = Transform3D(0.8090169, 0, 0.5877852, 0, 1, 0, -0.5877852, 0, 0.8090169, 31.829662, 0.085, 91.41177)
+
+[node name="Hex6" parent="hexes" unique_id=772552774 instance=ExtResource("8_55716")]
+transform = Transform3D(0.819152, 0, 0.5735764, 0, 1, 0, -0.5735764, 0, 0.819152, 34.341656, 0.085, 91.18)
+
+[node name="Hex7" parent="hexes" unique_id=198701314 instance=ExtResource("8_55716")]
+transform = Transform3D(0.809017, 0, 0.58778524, 0, 1, 0, -0.58778524, 0, 0.809017, 30.800823, 0.085, 93.73761)
+
+[node name="Hex9" parent="hexes" unique_id=1870541359 instance=ExtResource("8_55716")]
+transform = Transform3D(0.819152, 0, 0.5735764, 0, 1, 0, -0.5735764, 0, 0.819152, 32.285316, 0.085, 95.81356)
+
+[node name="Hex10" parent="hexes" unique_id=860504232 instance=ExtResource("8_55716")]
+transform = Transform3D(0.809017, 0, 0.58778524, 0, 1, 0, -0.58778524, 0, 0.809017, 35.83775, 0.085, 93.21089)
+
+[node name="Hex11" parent="hexes" unique_id=1866271558 instance=ExtResource("8_55716")]
+transform = Transform3D(0.8090169, 0, 0.5877852, 0, 1, 0, -0.5877852, 0, 0.8090169, 34.81025, 0.085, 95.518616)
+
+[node name="Hex12" parent="hexes" unique_id=1700928930 instance=ExtResource("8_55716")]
+transform = Transform3D(0.819152, 0, 0.5735764, 0, 1, 0, -0.5735764, 0, 0.819152, 37.322243, 0.085, 95.28684)
+
+[node name="Hex13" parent="hexes" unique_id=1071050553 instance=ExtResource("8_55716")]
+transform = Transform3D(0.809017, 0, 0.58778524, 0, 1, 0, -0.58778524, 0, 0.809017, 37.83827, 0.085, 88.55976)
+
+[node name="Hex14" parent="hexes" unique_id=2007254261 instance=ExtResource("8_55716")]
+transform = Transform3D(0.8090169, 0, 0.5877852, 0, 1, 0, -0.5877852, 0, 0.8090169, 36.81077, 0.085, 90.867485)
+
+[node name="Hex15" parent="hexes" unique_id=826211972 instance=ExtResource("8_55716")]
+transform = Transform3D(0.819152, 0, 0.5735764, 0, 1, 0, -0.5735764, 0, 0.819152, 39.32276, 0.085, 90.63571)
+
+[node name="Hex16" parent="hexes" unique_id=1417804961 instance=ExtResource("8_55716")]
+transform = Transform3D(0.809017, 0, 0.58778524, 0, 1, 0, -0.58778524, 0, 0.809017, 41.384094, 0.085, 86.02)
+
+[node name="Hex17" parent="hexes" unique_id=1008014266 instance=ExtResource("8_55716")]
+transform = Transform3D(0.8090169, 0, 0.5877852, 0, 1, 0, -0.5877852, 0, 0.8090169, 40.356594, 0.085, 88.32772)
+
+[node name="Hex18" parent="hexes" unique_id=1748683967 instance=ExtResource("8_55716")]
+transform = Transform3D(0.819152, 0, 0.5735764, 0, 1, 0, -0.5735764, 0, 0.819152, 42.868587, 0.085, 88.09595)
+
+[node name="Hex19" parent="hexes" unique_id=1098710337 instance=ExtResource("8_55716")]
+transform = Transform3D(0.809017, 0, 0.58778524, 0, 1, 0, -0.58778524, 0, 0.809017, 39.79744, 0.085, 94.96382)
+
+[node name="Hex20" parent="hexes" unique_id=784523303 instance=ExtResource("8_55716")]
+transform = Transform3D(0.8090169, 0, 0.5877852, 0, 1, 0, -0.5877852, 0, 0.8090169, 38.76994, 0.085, 97.271545)
+
+[node name="Hex22" parent="hexes" unique_id=1263848725 instance=ExtResource("8_55716")]
+transform = Transform3D(0.809017, 0, 0.58778524, 0, 1, 0, -0.58778524, 0, 0.809017, 41.782867, 0.085, 90.34152)
+
+[node name="Hex23" parent="hexes" unique_id=397240273 instance=ExtResource("8_55716")]
+transform = Transform3D(0.8090169, 0, 0.5877852, 0, 1, 0, -0.5877852, 0, 0.8090169, 40.755367, 0.085, 92.64925)
+
+[node name="Hex21" parent="hexes" unique_id=2107881600 instance=ExtResource("8_55716")]
+transform = Transform3D(0.809017, 0, 0.58778524, 0, 1, 0, -0.58778524, 0, 0.809017, 45.330166, 0.085, 87.732765)
+
+[node name="Hex24" parent="hexes" unique_id=1123702741 instance=ExtResource("8_55716")]
+transform = Transform3D(0.8090169, 0, 0.5877852, 0, 1, 0, -0.5877852, 0, 0.8090169, 44.302666, 0.085, 90.04049)
+
+[node name="Hex28" parent="hexes" unique_id=559561398 instance=ExtResource("8_55716")]
+transform = Transform3D(0.8090169, 0, 0.5877852, 0, 1, 0, -0.5877852, 0, 0.8090169, 44.11652, 0.085, 100.99811)
+
+[node name="Hex29" parent="hexes" unique_id=209148244 instance=ExtResource("8_55716")]
+transform = Transform3D(0.8090169, 0, 0.5877852, 0, 1, 0, -0.5877852, 0, 0.8090169, 49.293526, 0.085, 89.488495)
+
+[node name="Hex30" parent="hexes" unique_id=1032963319 instance=ExtResource("8_55716")]
+transform = Transform3D(0.8090169, 0, 0.5877852, 0, 1, 0, -0.5877852, 0, 0.8090169, 46.666355, 0.085, 100.79617)
+
+[node name="Hex31" parent="hexes" unique_id=1359999994 instance=ExtResource("8_55716")]
+transform = Transform3D(0.819152, 0, 0.5735764, 0, 1, 0, -0.5735764, 0, 0.819152, 46.81466, 0.085, 89.808716)
+
+[node name="Hex32" parent="hexes" unique_id=699605353 instance=ExtResource("8_55716")]
+transform = Transform3D(0.809017, 0, 0.58778524, 0, 1, 0, -0.58778524, 0, 0.809017, 43.27726, 0.085, 92.34754)
+
+[node name="Hex33" parent="hexes" unique_id=780347603 instance=ExtResource("8_55716")]
+transform = Transform3D(0.8090169, 0, 0.5877852, 0, 1, 0, -0.5877852, 0, 0.8090169, 42.24976, 0.085, 94.655266)
+
+[node name="Hex34" parent="hexes" unique_id=998361924 instance=ExtResource("8_55716")]
+transform = Transform3D(0.819152, 0, 0.5735764, 0, 1, 0, -0.5735764, 0, 0.819152, 44.761753, 0.085, 94.42349)
+
+[node name="Hex35" parent="hexes" unique_id=1995965814 instance=ExtResource("8_55716")]
+transform = Transform3D(0.809017, 0, 0.58778524, 0, 1, 0, -0.58778524, 0, 0.809017, 41.22092, 0.085, 96.9811)
+
+[node name="Hex36" parent="hexes" unique_id=92264307 instance=ExtResource("8_55716")]
+transform = Transform3D(0.8090169, 0, 0.5877852, 0, 1, 0, -0.5877852, 0, 0.8090169, 40.19342, 0.085, 99.288826)
+
+[node name="Hex37" parent="hexes" unique_id=939819667 instance=ExtResource("8_55716")]
+transform = Transform3D(0.819152, 0, 0.5735764, 0, 1, 0, -0.5735764, 0, 0.819152, 42.705414, 0.085, 99.05705)
+
+[node name="Hex38" parent="hexes" unique_id=2088745281 instance=ExtResource("8_55716")]
+transform = Transform3D(0.809017, 0, 0.58778524, 0, 1, 0, -0.58778524, 0, 0.809017, 46.257847, 0.085, 96.454384)
+
+[node name="Hex39" parent="hexes" unique_id=1213696409 instance=ExtResource("8_55716")]
+transform = Transform3D(0.8090169, 0, 0.5877852, 0, 1, 0, -0.5877852, 0, 0.8090169, 45.230347, 0.085, 98.76211)
+
+[node name="Hex40" parent="hexes" unique_id=1866650076 instance=ExtResource("8_55716")]
+transform = Transform3D(0.819152, 0, 0.5735764, 0, 1, 0, -0.5735764, 0, 0.819152, 47.74234, 0.085, 98.530334)
+
+[node name="Hex41" parent="hexes" unique_id=2044750480 instance=ExtResource("8_55716")]
+transform = Transform3D(0.809017, 0, 0.58778524, 0, 1, 0, -0.58778524, 0, 0.809017, 48.258366, 0.085, 91.80325)
+
+[node name="Hex42" parent="hexes" unique_id=1287672884 instance=ExtResource("8_55716")]
+transform = Transform3D(0.8090169, 0, 0.5877852, 0, 1, 0, -0.5877852, 0, 0.8090169, 47.230865, 0.085, 94.11098)
+
+[node name="Hex43" parent="hexes" unique_id=2124824020 instance=ExtResource("8_55716")]
+transform = Transform3D(0.819152, 0, 0.5735764, 0, 1, 0, -0.5735764, 0, 0.819152, 49.74286, 0.085, 93.8792)
+
+[node name="Hex44" parent="hexes" unique_id=1950638475 instance=ExtResource("8_55716")]
+transform = Transform3D(0.809017, 0, 0.58778524, 0, 1, 0, -0.58778524, 0, 0.809017, 48.138336, 0.085, 102.78725)
+
+[node name="Hex45" parent="hexes" unique_id=1050159816 instance=ExtResource("8_55716")]
+transform = Transform3D(0.8090169, 0, 0.5877852, 0, 1, 0, -0.5877852, 0, 0.8090169, 50.77669, 0.085, 91.57121)
+
+[node name="Hex46" parent="hexes" unique_id=236828988 instance=ExtResource("8_55716")]
+transform = Transform3D(0.819152, 0, 0.5735764, 0, 1, 0, -0.5735764, 0, 0.819152, 53.288685, 0.085, 91.33944)
+
+[node name="Hex47" parent="hexes" unique_id=1588568577 instance=ExtResource("8_55716")]
+transform = Transform3D(0.809017, 0, 0.58778524, 0, 1, 0, -0.58778524, 0, 0.809017, 50.217537, 0.085, 98.20731)
+
+[node name="Hex48" parent="hexes" unique_id=61553459 instance=ExtResource("8_55716")]
+transform = Transform3D(0.8090169, 0, 0.5877852, 0, 1, 0, -0.5877852, 0, 0.8090169, 49.190037, 0.085, 100.51504)
+
+[node name="Hex49" parent="hexes" unique_id=1471090399 instance=ExtResource("8_55716")]
+transform = Transform3D(0.809017, 0, 0.58778524, 0, 1, 0, -0.58778524, 0, 0.809017, 52.202965, 0.085, 93.585014)
+
+[node name="Hex50" parent="hexes" unique_id=215576201 instance=ExtResource("8_55716")]
+transform = Transform3D(0.8090169, 0, 0.5877852, 0, 1, 0, -0.5877852, 0, 0.8090169, 51.175465, 0.085, 95.89274)
+
+[node name="Hex51" parent="hexes" unique_id=2072241471 instance=ExtResource("8_55716")]
+transform = Transform3D(0.8090169, 0, 0.5877852, 0, 1, 0, -0.5877852, 0, 0.8090169, 52.003613, 0.085, 104.4949)
+
+[node name="Hex52" parent="hexes" unique_id=1093943189 instance=ExtResource("8_55716")]
+transform = Transform3D(0.8090169, 0, 0.5877852, 0, 1, 0, -0.5877852, 0, 0.8090169, 57.18062, 0.085, 92.98529)
+
+[node name="Hex53" parent="hexes" unique_id=429261479 instance=ExtResource("8_55716")]
+transform = Transform3D(0.8090169, 0, 0.5877852, 0, 1, 0, -0.5877852, 0, 0.8090169, 54.553448, 0.085, 104.29297)
+
+[node name="Hex54" parent="hexes" unique_id=598231039 instance=ExtResource("8_55716")]
+transform = Transform3D(0.819152, 0, 0.5735764, 0, 1, 0, -0.5735764, 0, 0.819152, 54.70175, 0.085, 93.30551)
+
+[node name="Hex55" parent="hexes" unique_id=28095850 instance=ExtResource("8_55716")]
+transform = Transform3D(0.819152, 0, 0.5735764, 0, 1, 0, -0.5735764, 0, 0.819152, 52.648846, 0.085, 97.92029)
+
+[node name="Hex56" parent="hexes" unique_id=60801583 instance=ExtResource("8_55716")]
+transform = Transform3D(0.819152, 0, 0.5735764, 0, 1, 0, -0.5735764, 0, 0.819152, 50.592506, 0.085, 102.55385)
+
+[node name="Hex57" parent="hexes" unique_id=454715817 instance=ExtResource("8_55716")]
+transform = Transform3D(0.809017, 0, 0.58778524, 0, 1, 0, -0.58778524, 0, 0.809017, 54.14494, 0.085, 99.95118)
+
+[node name="Hex58" parent="hexes" unique_id=58621176 instance=ExtResource("8_55716")]
+transform = Transform3D(0.8090169, 0, 0.5877852, 0, 1, 0, -0.5877852, 0, 0.8090169, 53.11744, 0.085, 102.2589)
+
+[node name="Hex59" parent="hexes" unique_id=388152328 instance=ExtResource("8_55716")]
+transform = Transform3D(0.819152, 0, 0.5735764, 0, 1, 0, -0.5735764, 0, 0.819152, 55.629433, 0.085, 102.02713)
+
+[node name="Hex60" parent="hexes" unique_id=1429565771 instance=ExtResource("8_55716")]
+transform = Transform3D(0.809017, 0, 0.58778524, 0, 1, 0, -0.58778524, 0, 0.809017, 56.14546, 0.085, 95.30005)
+
+[node name="Hex61" parent="hexes" unique_id=1316993779 instance=ExtResource("8_55716")]
+transform = Transform3D(0.8090169, 0, 0.5877852, 0, 1, 0, -0.5877852, 0, 0.8090169, 55.117958, 0.085, 97.60777)
+
+[node name="Hex62" parent="hexes" unique_id=2030703017 instance=ExtResource("8_55716")]
+transform = Transform3D(0.819152, 0, 0.5735764, 0, 1, 0, -0.5735764, 0, 0.819152, 57.62995, 0.085, 97.376)
+
+[node name="Hex63" parent="hexes" unique_id=1736594326 instance=ExtResource("8_55716")]
+transform = Transform3D(0.809017, 0, 0.58778524, 0, 1, 0, -0.58778524, 0, 0.809017, 56.02543, 0.085, 106.28404)
+
+[node name="Hex64" parent="hexes" unique_id=217919497 instance=ExtResource("8_55716")]
+transform = Transform3D(0.8090169, 0, 0.5877852, 0, 1, 0, -0.5877852, 0, 0.8090169, 58.663784, 0.085, 95.06801)
+
+[node name="Hex65" parent="hexes" unique_id=206115845 instance=ExtResource("8_55716")]
+transform = Transform3D(0.819152, 0, 0.5735764, 0, 1, 0, -0.5735764, 0, 0.819152, 61.17578, 0.085, 94.836235)
+
+[node name="Hex66" parent="hexes" unique_id=578320623 instance=ExtResource("8_55716")]
+transform = Transform3D(0.809017, 0, 0.58778524, 0, 1, 0, -0.58778524, 0, 0.809017, 58.10463, 0.085, 101.70411)
+
+[node name="Hex67" parent="hexes" unique_id=1492223993 instance=ExtResource("8_55716")]
+transform = Transform3D(0.8090169, 0, 0.5877852, 0, 1, 0, -0.5877852, 0, 0.8090169, 57.07713, 0.085, 104.01183)
+
+[node name="Hex68" parent="hexes" unique_id=575712633 instance=ExtResource("8_55716")]
+transform = Transform3D(0.809017, 0, 0.58778524, 0, 1, 0, -0.58778524, 0, 0.809017, 60.090057, 0.085, 97.08181)
+
+[node name="Hex69" parent="hexes" unique_id=1500086852 instance=ExtResource("8_55716")]
+transform = Transform3D(0.8090169, 0, 0.5877852, 0, 1, 0, -0.5877852, 0, 0.8090169, 59.062557, 0.085, 99.389534)

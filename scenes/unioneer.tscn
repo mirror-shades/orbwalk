@@ -1,0 +1,46 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/mover.gd" id="1_mover"]
+[ext_resource type="Resource" path="res://resources/definitions/unioneer.tres" id="2_def"]
+[ext_resource type="PackedScene" path="res://assets/models/champions/rogue/Rogue.fbx" id="3_model"]
+[ext_resource type="Script" path="res://scripts/health_bar.gd" id="4_hbar"]
+[ext_resource type="Script" path="res://scripts/model_colors.gd" id="5_colors"]
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_eng"]
+radius = 0.5
+height = 2.2
+
+[node name="Unioneer" type="CharacterBody3D"]
+script = ExtResource("1_mover")
+definition = ExtResource("2_def")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+transform = Transform3D(0.7, 0, 0, 0, 0.7, 0, 0, 0, 0.7, 0, 0.8, 0)
+shape = SubResource("CapsuleShape3D_eng")
+
+[node name="NavigationAgent3D" type="NavigationAgent3D" parent="."]
+
+[node name="Models" type="Node3D" parent="."]
+
+[node name="idle_model" parent="Models" instance=ExtResource("3_model")]
+transform = Transform3D(-0.8, 0, 0, 0, 0.8, 0, 0, 0, -0.8, 0, 0, 0)
+metadata/anim = "CharacterArmature|Idle"
+script = ExtResource("5_colors")
+colors = {"Belt": Color(0.32, 0.23, 0.16, 1), "Face": Color(0.8, 0.64, 0.48, 1), "Guard": Color(0.55, 0.58, 0.62, 1), "Pouch": Color(0.4, 0.29, 0.18, 1), "Rogue": Color(0.24, 0.29, 0.36, 1), "Rogue_Dagger": Color(0.7, 0.74, 0.8, 1), "Shoelace_L": Color(0.18, 0.18, 0.2, 1), "Shoelace_R": Color(0.18, 0.18, 0.2, 1)}
+
+[node name="attack_model" parent="Models" instance=ExtResource("3_model")]
+transform = Transform3D(-0.8, 0, 0, 0, 0.8, 0, 0, 0, -0.8, 0, 0, 0)
+metadata/anim = "CharacterArmature|Dagger_Attack"
+script = ExtResource("5_colors")
+colors = {"Belt": Color(0.32, 0.23, 0.16, 1), "Face": Color(0.8, 0.64, 0.48, 1), "Guard": Color(0.55, 0.58, 0.62, 1), "Pouch": Color(0.4, 0.29, 0.18, 1), "Rogue": Color(0.24, 0.29, 0.36, 1), "Rogue_Dagger": Color(0.7, 0.74, 0.8, 1), "Shoelace_L": Color(0.18, 0.18, 0.2, 1), "Shoelace_R": Color(0.18, 0.18, 0.2, 1)}
+
+[node name="run_model" parent="Models" instance=ExtResource("3_model")]
+transform = Transform3D(-0.8, 0, 0, 0, 0.8, 0, 0, 0, -0.8, 0, 0, 0)
+metadata/anim = "CharacterArmature|Run"
+script = ExtResource("5_colors")
+colors = {"Belt": Color(0.32, 0.23, 0.16, 1), "Face": Color(0.8, 0.64, 0.48, 1), "Guard": Color(0.55, 0.58, 0.62, 1), "Pouch": Color(0.4, 0.29, 0.18, 1), "Rogue": Color(0.24, 0.29, 0.36, 1), "Rogue_Dagger": Color(0.7, 0.74, 0.8, 1), "Shoelace_L": Color(0.18, 0.18, 0.2, 1), "Shoelace_R": Color(0.18, 0.18, 0.2, 1)}
+
+[node name="HealthBar" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3, 0)
+script = ExtResource("4_hbar")
+bar_height = 0.35

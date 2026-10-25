@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://ctmksvlmdwrjh"]
 
-[ext_resource type="PackedScene" uid="uid://ct5gjwbc0p274" path="res://textures/weapon/knife.blend" id="1_jb8b4"]
+[ext_resource type="PackedScene" uid="uid://xm18jlt267g8" path="res://assets/models/champions/cats_paw/knife.fbx" id="1_jb8b4"]
 
 [node name="Weapon" type="Node3D"]
 

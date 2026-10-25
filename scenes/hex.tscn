@@ -1,0 +1,30 @@
+[gd_scene format=3 uid="uid://cq2pcb1xdkyed"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_batyp"]
+size = Vector3(1.5, 1, 0.1)
+
+[node name="Hex" type="Node3D" unique_id=13450712]
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="." unique_id=525287372]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -1.2230923)
+mesh = SubResource("BoxMesh_batyp")
+
+[node name="MeshInstance3D2" type="MeshInstance3D" parent="." unique_id=647390700]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.0033672154, 0, 1.2600002)
+mesh = SubResource("BoxMesh_batyp")
+
+[node name="MeshInstance3D3" type="MeshInstance3D" parent="." unique_id=1723168094]
+transform = Transform3D(0.49999994, 0, 0.8660254, 0, 1, 0, -0.8660254, 0, 0.49999994, 1.097498, 0, 0.64280283)
+mesh = SubResource("BoxMesh_batyp")
+
+[node name="MeshInstance3D4" type="MeshInstance3D" parent="." unique_id=310191675]
+transform = Transform3D(0.4999999, 0, -0.8660253, 0, 1, 0, 0.8660253, 0, 0.4999999, 1.1, 0, -0.6)
+mesh = SubResource("BoxMesh_batyp")
+
+[node name="MeshInstance3D5" type="MeshInstance3D" parent="." unique_id=1688657191]
+transform = Transform3D(0.4999999, 0, -0.8660253, 0, 1, 0, 0.8660253, 0, 0.4999999, -1.0801766, 0, 0.6460146)
+mesh = SubResource("BoxMesh_batyp")
+
+[node name="MeshInstance3D6" type="MeshInstance3D" parent="." unique_id=953611960]
+transform = Transform3D(0.4999999, 0, 0.8660253, 0, 1, 0, -0.8660253, 0, 0.4999999, -1.091, 0, -0.6)
+mesh = SubResource("BoxMesh_batyp")

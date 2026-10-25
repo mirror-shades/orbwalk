@@ -1,0 +1,28 @@
+[gd_scene format=3 uid="uid://8juiygpbdra8"]
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_pvqg0"]
+top_radius = 2.5
+height = 0.002
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_baglu"]
+albedo_color = Color(0.31799886, 0.31799886, 0.31799886, 1)
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_baglu"]
+top_radius = 7.2
+bottom_radius = 7.2
+height = 0.001
+
+[node name="BaseVisual" type="Node3D" unique_id=1131931645]
+
+[node name="spawn" type="Node3D" parent="." unique_id=72581003]
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="spawn" unique_id=495451184]
+mesh = SubResource("CylinderMesh_pvqg0")
+skeleton = NodePath("")
+surface_material_override/0 = SubResource("StandardMaterial3D_baglu")
+
+[node name="Circle" type="Node3D" parent="." unique_id=2052885062]
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Circle" unique_id=1855287325]
+mesh = SubResource("CylinderMesh_baglu")
+skeleton = NodePath("")

@@ -82,7 +82,7 @@ func _physics_process(delta: float) -> void:
 	body.move_and_slide()
 
 	var local_dir := body.global_transform.basis.inverse() * dir
-	rotation.y = lerp_angle(rotation.y, atan2(local_dir.x, local_dir.z), rotation_speed * delta)
+	rotation.y = lerp_angle(rotation.y, atan2(local_dir.x, local_dir.z), minf(rotation_speed * delta, 1.0))
 
 func _set_target(screen_pos: Vector2) -> void:
 	var camera := get_viewport().get_camera_3d()
@@ -96,7 +96,7 @@ func _set_target(screen_pos: Vector2) -> void:
 
 	if hit.has("position"):
 		_target = hit["position"]
-		if nav:
+		if nav and nav.get_navigation_map().is_valid():
 			nav.target_position = _target
 		_moving = true
 		_show_indicator(_target)

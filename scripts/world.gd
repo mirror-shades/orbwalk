@@ -1,8 +1,8 @@
 extends Node3D
 
-@onready var gnome = $Gnome
+@onready var cats_paw = $CatsPaw
 
-@export var nav_agent_radius: float = 0.3
+@export var nav_agent_radius: float = 1.0
 @export var nav_agent_height: float = 2.0
 @export var nav_agent_max_climb: float = 0.1
 @export var nav_agent_max_slope: float = 45.0
@@ -10,8 +10,12 @@ extends Node3D
 @export var nav_edge_max_length: float = 12.0
 @export var nav_obstacle_padding: float = 0.35
 
+var _nav_map_rid: RID
+
 func _ready() -> void:
 	_create_navigation()
+	await get_tree().physics_frame
+	_setup_entity_agents()
 
 func _create_navigation() -> void:
 	for child in get_children():
@@ -58,7 +62,17 @@ func _create_navigation() -> void:
 	else:
 		region.navigation_mesh = nav_mesh
 
-	print("Nav region map RID: ", region.get_navigation_map())
+	_nav_map_rid = region.get_navigation_map()
+	print("Nav region map RID: ", _nav_map_rid)
+
+func _setup_entity_agents() -> void:
+	for entity in get_tree().get_nodes_in_group("entity"):
+		var n := entity.get_node_or_null("NavigationAgent3D") as NavigationAgent3D
+		if n:
+			NavigationServer3D.agent_set_map(n.get_rid(), _nav_map_rid)
+			n.radius = nav_agent_radius
+			n.target_position = entity.global_position
+			print("  Agent on map: ", n.get_navigation_map(), " radius: ", n.radius)
 
 func _add_obstacle_geometry(geo: NavigationMeshSourceGeometryData3D, node: Node) -> void:
 	var counts := _collect_geometry(geo, node)
@@ -73,18 +87,20 @@ func _collect_geometry(geo: NavigationMeshSourceGeometryData3D, node: Node) -> V
 			if aabb.size.x > 50.0 and aabb.size.z > 50.0:
 				geo.add_mesh(child.mesh, child.global_transform)
 				mesh_count += 1
+		if child is CSGShape3D and child.use_collision:
+			_add_csg_obstruction(geo, child)
+			shape_count += 1
 		if child is CollisionShape3D and child.shape:
 			var body := child.get_parent()
 			if body is CollisionObject3D:
 				var shape: Shape3D = child.shape
-				var is_large_ground := false
-				if shape is BoxShape3D:
-					var size: Vector3 = shape.size
-					if size.x > 10.0 and size.z > 10.0:
-						is_large_ground = true
-				if not is_large_ground:
+				if shape is BoxShape3D and shape.size.x > 10.0 and shape.size.z > 10.0:
+					var bm := BoxMesh.new()
+					bm.size = shape.size
+					geo.add_mesh(bm, child.global_transform)
+				else:
 					_add_projected_obstruction(geo, child)
-					shape_count += 1
+				shape_count += 1
 		var child_counts := _collect_geometry(geo, child)
 		mesh_count += child_counts.x
 		shape_count += child_counts.y
@@ -122,5 +138,39 @@ func _add_projected_obstruction(geo: NavigationMeshSourceGeometryData3D, cs: Col
 				r.z += padding_dir.z
 			vertices.append(Vector3(r.x + gp.x, 0, r.z + gp.z))
 
+	if vertices.size() > 2:
+		geo.add_projected_obstruction(vertices, 0.0, nav_agent_height, true)
+
+func _add_csg_obstruction(geo: NavigationMeshSourceGeometryData3D, csg: CSGShape3D) -> void:
+	var vertices := PackedVector3Array()
+
+	if csg is CSGPolygon3D:
+		var pts: PackedVector2Array = csg.polygon
+		if pts.size() > 2:
+			var world_pts: PackedVector3Array = PackedVector3Array()
+			for pt in pts:
+				var front_local := Vector3(pt.x, pt.y, 0.0)
+				world_pts.append(csg.global_transform * front_local)
+				var back_local := Vector3(pt.x, pt.y, -csg.depth)
+				world_pts.append(csg.global_transform * back_local)
+			for p in world_pts:
+				var flat := Vector3(p.x, 0.0, p.z)
+				if not vertices.has(flat):
+					vertices.append(flat)
+		if vertices.size() > 2:
+			geo.add_projected_obstruction(vertices, 0.0, nav_agent_height, true)
+			return
+
+	var aabb := csg.get_aabb()
+	if aabb.size.x < 0.001 and aabb.size.z < 0.001:
+		push_warning("CSGShape3D '", csg.name, "' AABB is zero — navmesh obstacle not registered")
+		return
+	var center := aabb.get_center()
+	var hx := aabb.size.x / 2.0 + nav_obstacle_padding
+	var hz := aabb.size.z / 2.0 + nav_obstacle_padding
+	for corner in [Vector2(-hx, -hz), Vector2(hx, -hz), Vector2(hx, hz), Vector2(-hx, hz)]:
+		var local := Vector3(center.x + corner.x, 0.0, center.z + corner.y)
+		var world := csg.global_transform * local
+		vertices.append(Vector3(world.x, 0.0, world.z))
 	if vertices.size() > 2:
 		geo.add_projected_obstruction(vertices, 0.0, nav_agent_height, true)

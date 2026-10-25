@@ -1,0 +1,46 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/mover.gd" id="1_mover"]
+[ext_resource type="Resource" path="res://resources/definitions/drill_sergeant.tres" id="2_def"]
+[ext_resource type="PackedScene" path="res://assets/models/champions/monk/Monk.fbx" id="3_model"]
+[ext_resource type="Script" path="res://scripts/health_bar.gd" id="4_hbar"]
+[ext_resource type="Script" path="res://scripts/model_colors.gd" id="5_colors"]
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_ds"]
+radius = 0.6
+height = 2.3
+
+[node name="DrillSergeant" type="CharacterBody3D"]
+script = ExtResource("1_mover")
+definition = ExtResource("2_def")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+transform = Transform3D(0.75, 0, 0, 0, 0.75, 0, 0, 0, 0.75, 0, 0.85, 0)
+shape = SubResource("CapsuleShape3D_ds")
+
+[node name="NavigationAgent3D" type="NavigationAgent3D" parent="."]
+
+[node name="Models" type="Node3D" parent="."]
+
+[node name="idle_model" parent="Models" instance=ExtResource("3_model")]
+transform = Transform3D(-0.8, 0, 0, 0, 0.8, 0, 0, 0, -0.8, 0, 0, 0)
+metadata/anim = "CharacterArmature|Idle"
+script = ExtResource("5_colors")
+colors = {"Monk": Color(0.34, 0.4, 0.24, 1), "Monk_001": Color(0.78, 0.62, 0.3, 1)}
+
+[node name="attack_model" parent="Models" instance=ExtResource("3_model")]
+transform = Transform3D(-0.8, 0, 0, 0, 0.8, 0, 0, 0, -0.8, 0, 0, 0)
+metadata/anim = "CharacterArmature|Attack"
+script = ExtResource("5_colors")
+colors = {"Monk": Color(0.34, 0.4, 0.24, 1), "Monk_001": Color(0.78, 0.62, 0.3, 1)}
+
+[node name="run_model" parent="Models" instance=ExtResource("3_model")]
+transform = Transform3D(-0.8, 0, 0, 0, 0.8, 0, 0, 0, -0.8, 0, 0, 0)
+metadata/anim = "CharacterArmature|Run"
+script = ExtResource("5_colors")
+colors = {"Monk": Color(0.34, 0.4, 0.24, 1), "Monk_001": Color(0.78, 0.62, 0.3, 1)}
+
+[node name="HealthBar" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3, 0)
+script = ExtResource("4_hbar")
+bar_height = 0.35

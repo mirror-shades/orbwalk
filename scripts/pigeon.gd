@@ -1,4 +1,4 @@
-extends "res://scripts/entity.gd"
+extends Entity
 
 const ANIM_FLY := "CharacterArmature|Fast_Flying"
 const ANIM_IDLE := "CharacterArmature|Flying_Idle"
@@ -9,7 +9,6 @@ const SWING_RATIO: float = 0.35
 
 var _current_anim: String = ""
 
-@onready var nav: NavigationAgent3D = $NavigationAgent3D
 @onready var visual_pivot: Node3D = $VisualPivot
 @onready var anim_player: AnimationPlayer = $VisualPivot/Pigeon/AnimationPlayer
 
@@ -53,28 +52,17 @@ func _physics_process(delta: float) -> void:
 			deal_attack_damage()
 		return
 
-	nav.target_position = _attack_target.global_position
-
-	if nav.is_navigation_finished():
+	var move_vel := navigate_toward(_attack_target.global_position, speed, 0.0)
+	if move_vel == Vector3.ZERO:
 		velocity = Vector3.ZERO
 		move_and_slide()
 		_play_anim(ANIM_IDLE)
 		return
 
-	var next_pos := nav.get_next_path_position()
-	var dir := next_pos - global_position
-	dir.y = 0.0
-
-	if dir.length() < 0.01:
-		_play_anim(ANIM_IDLE)
-		return
-
-	dir = dir.normalized()
-	velocity = dir * speed
+	velocity = move_vel
 	move_and_slide()
 	_play_anim(ANIM_FLY)
-
-	face_position(next_pos, visual_pivot, delta)
+	face_position(_attack_target.global_position, visual_pivot, delta)
 
 func _acquire_target() -> void:
 	var nearest := EntityData.get_nearest_enemy(global_position, stats.get_team())

@@ -1,0 +1,8 @@
+[gd_scene format=3 uid="uid://ds4u6bqoejmt0"]
+
+[ext_resource type="PackedScene" uid="uid://d2bbmeke45bm6" path="res://assets/models/monsters/Blob/FBX/Alien.fbx" id="1_eaw25"]
+
+[node name="JungleMonsters" type="Node3D" unique_id=1466229019]
+transform = Transform3D(-0.3410523, 0, -0.94004434, 0, 1, 0, 0.94004434, 0, -0.3410523, 0, 0, 0)
+
+[node name="Alien" parent="." unique_id=626213126 instance=ExtResource("1_eaw25")]
